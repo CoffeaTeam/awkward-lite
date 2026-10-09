@@ -74,7 +74,7 @@ repos:
     - id: mypy
       files: src
       additional_dependencies:
-        - numpy>=1.24
+        - numpy>=2
 
 - repo: https://github.com/abravalheri/validate-pyproject
   rev: 4b2e70d08cb2ccd26d1fba73588de41c7a5d50b7  # frozen: v0.25

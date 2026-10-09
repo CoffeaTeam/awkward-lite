@@ -1583,8 +1583,7 @@ class Array(NDArrayOperatorsMixin, Iterable, Sized):
         This method conforms to NumPy's
         [NEP 13](https://numpy.org/neps/nep-0013-ufunc-overrides.html)
         for overriding ufuncs, which has been
-        [available since NumPy 1.13](https://numpy.org/devdocs/release/1.13.0-notes.html#array-ufunc-added)
-        (and thus NumPy 1.13 is the minimum allowed version).
+        [available since NumPy 1.13](https://numpy.org/devdocs/release/1.13.0-notes.html#array-ufunc-added).
 
         When any ufunc is applied to an Awkward Array, it applies to the
         innermost level of structure and preserves the structure through the
@@ -2505,8 +2504,7 @@ class Record(NDArrayOperatorsMixin):
         This method conforms to NumPy's
         [NEP 13](https://numpy.org/neps/nep-0013-ufunc-overrides.html)
         for overriding ufuncs, which has been
-        [available since NumPy 1.13](https://numpy.org/devdocs/release/1.13.0-notes.html#array-ufunc-added)
-        (and thus NumPy 1.13 is the minimum allowed version).
+        [available since NumPy 1.13](https://numpy.org/devdocs/release/1.13.0-notes.html#array-ufunc-added).
 
         See #ak.Array.__array_ufunc__ for a more complete description.
         """

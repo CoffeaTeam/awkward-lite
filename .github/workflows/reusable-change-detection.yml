@@ -48,7 +48,6 @@ jobs:
             src/awkward/**
             tests/**
             .gitmodules
-            codecov.yml
             kernel-specification.yml
             kernel-test-data.json
             noxfile.py

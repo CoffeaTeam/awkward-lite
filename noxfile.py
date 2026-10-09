@@ -19,12 +19,8 @@ nox.options.default_venv_backend = "uv|virtualenv"
 nox.options.sessions = ["lint", "tests"]
 
 requirements_dev = [
-    "build",
     "numpy",
-    "packaging",
     "PyYAML",
-    "requests",
-    "tomli",
 ]
 
 PYPROJECT = nox.project.load_toml("pyproject.toml")
@@ -66,17 +62,6 @@ def pylint(session):
 
     session.install("pylint~=3.3.0")
     session.run("pylint", "src", *session.posargs)
-
-
-@nox.session(python=ALL_PYTHONS, reuse_venv=True)
-def coverage(session):
-    """
-    Run the unit and regular tests.
-    """
-    session.install("-r", "requirements-test-full.txt", "./awkward-cpp", ".")
-    session.run(
-        "pytest", "tests", "--cov=awkward", "--cov-report=xml", *session.posargs
-    )
 
 
 @nox.session(reuse_venv=True)
@@ -169,26 +154,6 @@ def prepare(session):
         session.run("python", "dev/generate-tests.py")
     if args.docs or prepare_all:
         session.run("python", "dev/generate-kernel-docs.py")
-
-
-@nox.session(reuse_venv=True)
-def check_cpp_constraint(session):
-    """
-    Check that the awkward-cpp version is compatible with awkward.
-    """
-    session.install(*requirements_dev)
-    session.run("python", "dev/check-awkward-uses-awkward-cpp.py")
-
-
-@nox.session(reuse_venv=True)
-def check_cpp_sdist_released(session):
-    """
-    Check that the awkward-cpp sdist is already on PyPI
-    """
-    session.install(*requirements_dev)
-    session.run(
-        "python", "dev/check-awkward-cpp-sdist-matches-pypi.py", *session.posargs
-    )
 
 
 @nox.session(reuse_venv=True)

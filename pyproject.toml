@@ -322,3 +322,6 @@ mccabe.max-complexity = 100
 [tool.uv]
 exclude-newer = "7 days"
 exclude-newer-package = { awkward_cpp = false }
+
+[tool.uv.sources]
+awkward_cpp = { path = "awkward-cpp" }

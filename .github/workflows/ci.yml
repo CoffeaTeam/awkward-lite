@@ -21,8 +21,6 @@ jobs:
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-tests)
     uses: ./.github/workflows/reusable-test.yml
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   packaging-tests:
     needs: change-detection
@@ -34,17 +32,6 @@ jobs:
     if: fromJSON(needs.change-detection.outputs.run-header-only-tests)
     uses: ./.github/workflows/reusable-header-only-test.yml
 
-  docs:
-    uses: ./.github/workflows/reusable-docs.yml
-    permissions:
-      contents: read
-    secrets:
-      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
   pass:
     name: Check CI result
     if: always()
@@ -53,7 +40,6 @@ jobs:
       - tests
       - packaging-tests
       - header-only-tests
-      - docs
     runs-on: ubuntu-slim
 
     steps:

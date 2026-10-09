@@ -15,44 +15,10 @@ concurrency:
 env:
   SOURCE_DATE_EPOCH: "1668811211"
 
+# No wheels are published from this repository. These jobs only check that
+# awkward-cpp still builds as a wheel with cibuildwheel, which covers what the
+# test jobs do not build: Windows on ARM, manylinux, universal2 and Pyodide.
 jobs:
-  build_awkward_sdist_wheel:
-    name: "Build awkward"
-    runs-on: ubuntu-slim
-    steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        submodules: true
-        persist-credentials: false
-
-    - name: Prepare build files
-      run: pipx run nox -s prepare
-
-    - name: Build awkward SDist & wheel
-      run: pipx run build
-
-    - name: Check metadata
-      run: pipx run twine check dist/*
-
-    - name: Build awkward-cpp SDist
-      run: pipx run build --sdist awkward-cpp
-
-    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: awkward-sdist
-        path: dist/*.tar.gz
-
-    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: awkward-wheel
-        path: dist/*.whl
-
-    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: awkward-cpp-sdist
-        path: awkward-cpp/dist/*.tar.gz
-
-
   build_cpp_wheels:
     name: "Build awkward-cpp: ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
@@ -78,12 +44,6 @@ jobs:
       with:
         package-dir: awkward-cpp
 
-    - name: Upload wheels
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: awkward-cpp-wheels-${{ matrix.os }}
-        path: wheelhouse/*.whl
-
   build_cpp_pyodide_wheels:
     name: "Build awkward-cpp: pyodide"
     runs-on: ubuntu-latest
@@ -97,19 +57,9 @@ jobs:
     - name: Setup uv
       uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
-    # The pyodide cross-build cannot generate the kernel tests (no host numpy)
-    - name: Generate kernel tests for the wheel test suite
-      run: pipx run nox -s prepare -- --tests
-
     - uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
       env:
         CIBW_PLATFORM: pyodide
         CIBW_BUILD: cp314-pyodide_wasm32
       with:
         package-dir: awkward-cpp
-
-    - name: Upload wheels
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: awkward-cpp-wheels-pyodide
-        path: wheelhouse/*.whl

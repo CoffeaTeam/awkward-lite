@@ -68,7 +68,7 @@ jobs:
           format: "json"
           filter: |
             .github/workflows/ci.yml
-            .github/workflows/reusable-build-wheels.yml
+            .github/workflows/reusable-packaging-test.yml
             awkward-cpp/include/**
             awkward-cpp/rapidjson/**
             awkward-cpp/src/**

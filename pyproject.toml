@@ -43,7 +43,7 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "awkward_cpp==58",
+    "awkward_cpp @ git+https://github.com/CoffeaTeam/awkward-lite.git#subdirectory=awkward-cpp",
     "importlib_metadata>=4.13.0;python_version < \"3.12\"",
     "numpy>=1.21.3",
     "packaging",
@@ -94,6 +94,9 @@ include = [
 artifacts = [
     "/src/awkward/_connect/header-only",
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/markdown"

@@ -6,7 +6,7 @@
 [![BSD-3 Clause License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Build Test](https://github.com/CoffeaTeam/awkward-lite/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/CoffeaTeam/awkward-lite/actions/workflows/ci.yml)
 
-Awkward Array Lite is a minimal, CPU-only fork of [Awkward Array](https://github.com/scikit-hep/awkward), without the CUDA and JAX backends. It is an independent project, not affiliated with or endorsed by the authors of Awkward Array or by Scikit-HEP.
+Awkward Array Lite is a minimal, CPU-only fork of [Awkward Array](https://github.com/scikit-hep/awkward). It is an independent project, not affiliated with or endorsed by the authors of Awkward Array or by Scikit-HEP.
 
 Awkward Array is a library for **nested, variable-sized data**, including arbitrary-length lists, records, mixed types, and missing data, using **NumPy-like idioms**.
 

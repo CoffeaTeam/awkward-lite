@@ -141,6 +141,37 @@ def test_longdouble_keeps_its_precision():
     assert ak.to_numpy(ak.sum(as_complex, axis=1))[0] == np.sum(data)
 
 
+def test_longdouble_min_and_max_with_initial():
+    data = values(np.longdouble)
+    array = ak.from_regular(ak.Array(data))
+
+    result = ak.to_numpy(ak.min(array, axis=1, initial=1.5))
+    assert np.array_equal(result, np.min(data, axis=1, initial=1.5))
+    result = ak.to_numpy(ak.max(array, axis=1, initial=3.5))
+    assert np.array_equal(result, np.max(data, axis=1, initial=3.5))
+
+    if LONGDOUBLE_IS_WIDER:
+        # these values and the initial are all equal to 1 as float64
+        one = np.longdouble(1)
+        eps = np.finfo(np.longdouble).eps
+        data = np.array(
+            [[one + 2 * eps, one + 3 * eps], [one + 5 * eps, one + 6 * eps]]
+        )
+        array = ak.from_regular(ak.Array(data))
+
+        low, high = one + eps, one + 4 * eps
+        result = ak.to_numpy(ak.min(array, axis=1, initial=low))
+        assert np.array_equal(result, np.min(data, axis=1, initial=low))
+        result = ak.to_numpy(ak.max(array, axis=1, initial=high))
+        assert np.array_equal(result, np.max(data, axis=1, initial=high))
+
+        # for complex numbers the initial is the result of an empty list
+        data = np.array([1 + 1j], dtype=np.clongdouble)
+        array = ak.unflatten(ak.Array(data), [1, 0])
+        result = ak.to_numpy(ak.min(array, axis=1, initial=low, mask_identity=False))
+        assert result[1] == low
+
+
 @pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
 def test_complex_numbers_cannot_be_sorted(dtype):
     array = ak.from_regular(ak.Array(values(dtype)))

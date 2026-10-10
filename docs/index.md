@@ -1,4 +1,4 @@
-# Awkward Array documentation
+# Awkward Array Lite documentation
 
 
 % TODO mention left side-bar
@@ -10,27 +10,9 @@
 
 Awkward Array is a library for **nested, variable-sized data**, including arbitrary-length lists, records, mixed types, and missing data, using **NumPy-like idioms**.
 
-:::{image} https://img.shields.io/conda/vn/conda-forge/awkward?style=for-the-badge&color=brightgreen&logo=condaforge
-:alt: Conda (channel only)
-:target: https://anaconda.org/conda-forge/awkward
-:class: shield-badge
-:::
-
-:::{image} https://img.shields.io/pypi/v/awkward?style=for-the-badge&logo=pypi
-:alt: PyPI
-:target: https://pypi.org/project/awkward
-:class: shield-badge
-:::
-
-:::{image} https://img.shields.io/badge/GitHub-scikit--hep%2Fawkward-lightgrey?style=for-the-badge&logo=GitHub
+:::{image} https://img.shields.io/badge/GitHub-CoffeaTeam%2Fawkward--lite-lightgrey?style=for-the-badge&logo=GitHub
 :alt: GitHub
-:target: https://github.com/scikit-hep/awkward
-:class: shield-badge
-:::
-
-:::{image} https://img.shields.io/badge/-Try%20It%21%20%E2%86%97-orange?style=for-the-badge
-:alt: Try It! ⭷
-:target: _static/try-it.html
+:target: https://github.com/CoffeaTeam/awkward-lite
 :class: shield-badge
 :::
 
@@ -76,22 +58,13 @@ The reference guide contains a detailed description of the functions, modules, a
 :::
 
 :::{grid-item-card}
-:link: https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md
+:link: https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md
 
 {fas}`terminal`
 
 Contributor's guide
 ^^^^^^^^^^^^^^^^^^^
 Spotted a typo in the documentation? Want to add to the codebase? The contributing guidelines will guide you through the process of improving Awkward Array.
-
-:::
-
-:::{grid-item-card} 
-:columns: 12
-:link: https://awkward-array.org/doc/1.10/api-reference.html
-:class-card: admonition warning
-
-{fas}`history` Need the documentation for version 1 of Awkward Array? Click this card.
 
 :::
 

@@ -9,7 +9,7 @@ body:
     attributes:
       label: "Which documentation?"
       description: |
-        In the [documentation website](https://awkward-array.org/), the [GitHub README.md](https://github.com/scikit-hep/awkward/blob/main/README.md), [CONTRIBUTING.md](https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md), Python docstrings, or C++ doxygen comments?
+        In the documentation sources, the [README.md](https://github.com/CoffeaTeam/awkward-lite/blob/main/README.md), [CONTRIBUTING.md](https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md), Python docstrings, or C++ doxygen comments?
       options:
         - Documentation website
         - GitHub README.md

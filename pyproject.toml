@@ -13,7 +13,7 @@ license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [
-    { name = "Jim Pivarski", email = "jpivarski@gmail.com" },
+    { name = "Awkward Array Lite developers" },
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -58,12 +58,9 @@ dynamic = [
 init = "awkward.numba:_register"
 
 [project.urls]
-"Bug Tracker" = "https://github.com/scikit-hep/awkward-1.0/issues"
-"Discussions" = "https://github.com/scikit-hep/awkward-1.0/discussions"
-"Documentation" = "https://awkward-array.org"
-"Homepage" = "https://github.com/scikit-hep/awkward-1.0"
-"Releases" = "https://github.com/scikit-hep/awkward-1.0/releases"
-"Source Code" = "https://github.com/scikit-hep/awkward-1.0"
+"Bug Tracker" = "https://github.com/CoffeaTeam/awkward-lite/issues"
+"Homepage" = "https://github.com/CoffeaTeam/awkward-lite"
+"Source Code" = "https://github.com/CoffeaTeam/awkward-lite"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/awkward"]
@@ -83,7 +80,6 @@ include = [
     "/tests",
     "/docs-img",
     "/docs",
-    "/CITATION.cff",
     "/CONTRIBUTING.md",
     "/README.md",
     "/juliapkg.json",
@@ -103,8 +99,8 @@ content-type = "text/markdown"
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
 text = """
-<a href="https://github.com/scikit-hep/awkward-1.0">
-    <img src="https://github.com/scikit-hep/awkward-1.0/raw/main/docs-img/logo/logo-300px.png">
+<a href="https://github.com/CoffeaTeam/awkward-lite">
+    <img src="https://github.com/CoffeaTeam/awkward-lite/raw/main/docs-img/logo/logo-300px.png">
 </a>
 """
 

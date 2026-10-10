@@ -4,7 +4,7 @@
 # dependencies = ["nox>=2025.2.09"]
 # ///
 
-# BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 
 import argparse

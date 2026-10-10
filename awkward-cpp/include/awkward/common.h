@@ -1,4 +1,4 @@
-// BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+// BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 #ifndef AWKWARD_COMMON_H_
 #define AWKWARD_COMMON_H_
@@ -18,7 +18,7 @@
 
 #define QUOTE(x) #x
 
-#define FILENAME_FOR_EXCEPTIONS_C(filename, line) "\n\n(https://github.com/scikit-hep/awkward/blob/awkward-cpp-" VERSION_INFO "/awkward-cpp/" filename "#L" #line ")"
+#define FILENAME_FOR_EXCEPTIONS_C(filename, line) "\n\n(https://github.com/CoffeaTeam/awkward-lite/blob/main/awkward-cpp/" filename "#L" #line ")"
 #define FILENAME_FOR_EXCEPTIONS(filename, line) std::string(FILENAME_FOR_EXCEPTIONS_C(filename, line))
 
 #ifdef __GNUC__

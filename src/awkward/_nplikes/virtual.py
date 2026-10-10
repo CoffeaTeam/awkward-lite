@@ -1,4 +1,4 @@
-# BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def assert_never():
         "Awkward Array tried to use a generator function, "
         "but this generator function should never be run. "
         "This is unexpected behavior — please open an issue at "
-        "https://github.com/scikit-hep/awkward/issues with a minimal example."
+        "https://github.com/CoffeaTeam/awkward-lite/issues with a minimal example."
     )
     raise RuntimeError(msg)
 

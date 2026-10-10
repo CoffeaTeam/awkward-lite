@@ -2,28 +2,21 @@
 
 ## Installation
 
-:::::{card} If you use pip, rip, pixi, or uv to install packages,
+Awkward Array Lite is installed from its repository with pip:
 
 ```bash
-pip install awkward
+pip install git+https://github.com/CoffeaTeam/awkward-lite.git
 ```
-:::::
-:::::{card} If you use conda or mamba, it's in the conda-forge channel.
 
-```bash
-conda install -c conda-forge awkward
-```
-:::::
+It installs under the names `awkward` and `awkward-cpp`. If an environment already has packages with those names from PyPI or conda-forge, uninstall them first, or start from a new environment.
 
-If you're installing as a developer or testing updates that haven't been released in a package manager yet, see the [developer installation instructions](https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md#building-and-testing-locally) in the [Contributor guide](https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md).
+If you're installing as a developer, see the [developer installation instructions](https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md#building-and-testing-locally) in the [Contributor guide](https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md).
 
 ## Tutorials
 
 See the left side-bar (or bring it into view by clicking on the upper-left `≡`) for tutorials that illustrate the purpose and main concepts behind Awkward Arrays.
 
 ## Frequently asked questions
-
-You can test any examples in a new window/tab by clicking on [![Try It! ⭷](https://img.shields.io/badge/-Try%20It%21%20%E2%86%97-orange?style=for-the-badge)](https://awkward-array.org/doc/main/_static/try-it.html).
 
 ::::::::{grid} 1
 
@@ -619,9 +612,9 @@ See the last section of {doc}`../user-guide/how-to-math-broadcasting`.
 :::::::{grid-item} 
 ::::::{dropdown} What if I need more help? What if I think I've found a bug?
 
-After checking the tutorials on the left-bar of this Getting started guide, the User guide, and the API reference, you can ask questions about how to use a feature or solve a problem on Awkward Array's [GitHub Discussions](https://github.com/scikit-hep/awkward/discussions).
+After checking the tutorials on the left-bar of this Getting started guide, the User guide, and the API reference, you can ask how to use a feature or solve a problem on this repository's [GitHub Issues](https://github.com/CoffeaTeam/awkward-lite/issues).
 
-If the behavior you're seeing looks like a bug, an error in Awkward Array itself, post some simplified code to reproduce it on Awkward Array's [GitHub Issues](https://github.com/scikit-hep/awkward/issues).
+If the behavior you're seeing looks like a bug, post some simplified code to reproduce it there too.
 
 ::::::
 :::::::

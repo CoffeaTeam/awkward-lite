@@ -1,4 +1,4 @@
-// BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+// BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 // Regression tests for:
 //   1. Union::form() emitting invalid JSON when parameters are set

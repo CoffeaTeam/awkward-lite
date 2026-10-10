@@ -23,7 +23,7 @@ body:
         >>> ak.__version__
         ```
 
-        (Your issue might have already been fixed; see [latest version](https://pypi.org/project/awkward/).)
+        (Your issue might have already been fixed on the [main branch](https://github.com/CoffeaTeam/awkward-lite).)
       placeholder: "XX.YY.ZZ"
     validations:
       required: true

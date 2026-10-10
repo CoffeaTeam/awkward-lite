@@ -4,17 +4,17 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Repository layout: two packages
 
-This repo ships **two PyPI packages** from one repository:
+This repo holds **two packages**, both installed from the repository (neither is published on PyPI):
 
-- **`awkward`** — pure Python, in `src/awkward`. Released frequently.
-- **`awkward-cpp`** — compiled C++ kernels (pybind11 + scikit-build-core), in `awkward-cpp/`. Versioned independently, released rarely (compilation takes hours in CI). `pyproject.toml` pins the exact `awkward-cpp` version that `awkward` requires.
+- **`awkward`** — pure Python, in `src/awkward`.
+- **`awkward-cpp`** — compiled C++ kernels (pybind11 + scikit-build-core), in `awkward-cpp/`. `awkward` requires it by the address of this repository in `pyproject.toml`, and uv takes it from the checkout.
 
 Parts of `awkward-cpp` are generated; building `awkward-cpp` from the repository generates them automatically (CMake runs the `dev/` generation scripts at configure time).
 
 ## Development setup
 
 ```bash
-git clone --recursive https://github.com/scikit-hep/awkward.git  # rapidjson submodule
+git clone --recursive https://github.com/CoffeaTeam/awkward-lite.git  # rapidjson submodule
 python -m pip install -v ./awkward-cpp   # generates headers, kernel signatures, and kernel tests
 python -m pip install -e .
 ```
@@ -80,9 +80,9 @@ To change a kernel: (1) edit `kernel-specification.yml`; (2) run the generation 
 ## Conventions and gotchas
 
 - PR titles follow Conventional Commits (`feat:`, `fix:`, `docs:`, ...) — PRs are squash-merged, so the title becomes the commit message. Branches are named `<github-userid>/description`.
-- `main` must always be in a working state and stays close to the latest release. Do not commit directly to `main` (PRs only). `main-v1` is a separate diverged branch for Awkward 1.x fixes.
+- `main` must always be in a working state. Do not commit directly to `main` (PRs only).
 - Changes to core dependencies (NumPy, Numba, Pandas, PyArrow) or Python version support must be discussed with maintainers first.
-- If a PR requires C++ changes, the `awkward-cpp` version must be bumped in both `awkward-cpp/pyproject.toml` and the pin in `pyproject.toml`, and an `awkward-cpp` release made before the `awkward` release.
+- If a PR requires C++ changes, rebuild `awkward-cpp` from the checkout to test it. There are no `awkward-cpp` releases.
 - AI-assisted contributions must be disclosed in the PR description (see CONTRIBUTING.md).
 
 ## Docs

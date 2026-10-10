@@ -1,20 +1,20 @@
-# Contributing to Awkward Array
+# Contributing to Awkward Array Lite
 
 Thank you for your interest in contributing! We're eager to see your ideas and look forward to working with you.
 
-This document describes the technical procedures we follow in this project. It should also be stressed that as members of the Scikit-HEP community, we are all obliged to maintaining a welcoming, harassment-free environment. See the [Code of Conduct](https://scikit-hep.org/code-of-conduct) for details.
+This document describes the technical procedures we follow in this project. We are all obliged to maintain a welcoming, harassment-free environment.
 
 ### Where to start
 
-The front page for the Awkward Array project is its [GitHub README](https://github.com/scikit-hep/awkward#readme). This leads directly to tutorials and reference documentation that you may have already seen. It also includes instructions for [compiling for development](https://github.com/scikit-hep/awkward#installation-for-developers).
+The front page of this project is its [README](README.md). It includes instructions for [compiling for development](README.md#installation-for-developers).
 
 ### Reporting issues
 
-The first thing you should do if you want to fix something is to [submit an issue through GitHub](https://github.com/scikit-hep/awkward/issues). That way, we can all see it and maybe one of us or a member of the community knows of a solution that could save you the time spent fixing it. If you "assign yourself" to the issue (top of right side-bar), you can signal your intent to fix it in the issue report.
+The first thing you should do if you want to fix something is to [submit an issue through GitHub](https://github.com/CoffeaTeam/awkward-lite/issues). That way, we can all see it and maybe one of us or a member of the community knows of a solution that could save you the time spent fixing it. If you "assign yourself" to the issue (top of right side-bar), you can signal your intent to fix it in the issue report.
 
 ### Contributing a pull request
 
-Feel free to [open pull requests in GitHub](https://github.com/scikit-hep/awkward/pulls) from your [forked repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo) when you start working on the problem. We recommend opening the pull request early so that we can see your progress and communicate about it. (Note that you can `git commit --allow-empty` to make an empty commit and start a pull request before you even have new code.)
+Feel free to [open pull requests in GitHub](https://github.com/CoffeaTeam/awkward-lite/pulls) from your [forked repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo) when you start working on the problem. We recommend opening the pull request early so that we can see your progress and communicate about it. (Note that you can `git commit --allow-empty` to make an empty commit and start a pull request before you even have new code.)
 
 Please [make the pull request a draft](https://github.blog/2019-02-14-introducing-draft-pull-requests/) to indicate that it is in an incomplete state and shouldn't be merged until you click "ready for review."
 
@@ -35,19 +35,9 @@ Pull requests that do not meet these expectations may be closed without review.
 
 ### Getting your pull request reviewed
 
-Currently, we have three regular reviewers of pull requests:
-
-  * Ianna Osborne ([ianna](https://github.com/ianna))
-  * Tai Sakuma ([TaiSakuma](https://github.com/TaiSakuma))
-  * Andres Rios Tascon ([ariostas](https://github.com/ariostas))
-
-You can request a review from one of us or just comment in GitHub that you want a review and we'll see it. Only one review is required to be allowed to merge a pull request. We'll work with you to get it into shape.
+Comment in GitHub that you want a review and we'll see it. Only one review is required to be allowed to merge a pull request. We'll work with you to get it into shape.
 
 If you're waiting for a response and haven't heard in a few days, it's possible that we forgot/got distracted/thought someone else was reviewing it/thought we were waiting on you, rather than you waiting on us—just write another comment to remind us.
-
-### Becoming a regular committer
-
-If you want to contribute frequently, we'll grant you write access to the `scikit-hep/awkward` repo itself. This is more convenient than pull requests from forked repos.
 
 ### Git practices
 
@@ -211,7 +201,7 @@ and it makes it easier to figure out why a particular test was added. The easies
 
 ### Building documentation locally
 
-Documentation is automatically built by each pull request. You usually won't need to build the documentation locally, but if you do, this section describes how.
+This section describes how to build the documentation locally.
 
 We use [Sphinx](https://pypi.org/project/Sphinx/) to generate documentation. You may need to install some additional packages:
 
@@ -269,8 +259,6 @@ There is also a cache in the `docs/_build/.jupyter_cache` directory for Jupyter 
 
 The Awkward Array `main` branch must be kept in an unbroken state. There are two reasons for this: so that developers can work independently on known-to-be-working states and so that users can test the latest changes (usually to see if the bug they've discovered is fixed by a potential correction).
 
-The `main` branch is also never far from the latest released version. We usually deploy patch releases (`z` in a version number like `x.y.z`) within days of a bug-fix.
-
 Committing directly to `main` is not allowed except for
 
    * updating the `pyproject.toml` file to increase the version number, which should be independent of pull requests
@@ -278,46 +266,6 @@ Committing directly to `main` is not allowed except for
    * unprecedented emergencies
 
 and only by the the [reviewing team](CONTRIBUTING.md#getting-your-pull-request-reviewed).
-
-### The main-v1 branch
-
-The `main-v1` branch was split from `main` just before Awkward 1.x code was removed, so it exists to make 1.10.x bug-fix releases. These commits must be drawn from `main-v1`, not `main`, and pull requests must target `main-v1` (not the GitHub default). A single commit cannot be applied to both `main` and `main-v1` because they have diverged too much. If a bug-fix needs to be applied to both (unlikely), it will have to be reimplemented on both.
-
-### Releases
-
-Currently, two people can deploy releases:
-
-  * Ianna Osborne ([ianna](https://github.com/ianna))
-  * Tai Sakuma ([TaiSakuma](https://github.com/TaiSakuma))
-
-There are two kinds of releases: (1) `awkward-cpp` updates, which only occur when the C++ is updated (rare) and involves compilation on many platforms (takes hours), and (2) `awkward` updates, which can happen with any bug-fix. The [releases listed in GitHub](https://github.com/scikit-hep/awkward/releases) are `awkward` releases, not `awkward-cpp`.
-
-If you need your merged pull request to be deployed in a release, just ask!
-
-#### `awkward-cpp` releases
-To make an `awkward-cpp` release:
-1. A commit to `main` should increase the version number in `awkward-cpp/pyproject.toml` and the corresponding dependency in `pyproject.toml`. This ensures that `awkward-cpp` and `awkward` remain in-sync.
-2. The [Deploy C++](https://github.com/scikit-hep/awkward/actions/workflows/deploy-cpp.yml) GitHub Actions workflow should be manually triggered.
-3. A `git` tag `awkward-cpp-{version}` should be created for the new version epoch.
-
-#### `awkward` releases
-To make an `awkward` release:
-1. A commit to `main` should increase the version number in `pyproject.toml`
-2. A new GitHub release must be published. "Generate release notes" produces categorized notes automatically: a workflow labels each PR `type/<type>` from its conventional-commit title, and `.github/release.yml` groups those labels into sections.
-3. A `docs/switcher.json` entry must be added for new minor/major versions.
-
-Pushes that modify `docs/switcher.json` on `main` will automatically be synchronised with AWS.
-
-#### Nightly wheels
-
-Nightly wheels of `awkward-cpp` and `awkward` are built and published to the [Scientific Python Nightly Wheels Anaconda Cloud organization](https://anaconda.org/scientific-python-nightly-wheels).
-As the `awkward-cpp` and `awkward` nightly wheels do not include version control system information, they will have the same version numbers as the last released versions on the public PyPI. To avoid resolution conflicts when installing the nightly wheels, it is recommended to first install `awkward-cpp` and `awkward` from PyPI to get all of their dependencies, then uninstall `awkward-cpp` and `awkward` and install the nightly wheels from the Scientific Python nightly index.
-
-```
-python -m pip install --upgrade awkward
-python -m pip uninstall --yes awkward awkward-cpp
-python -m pip install --upgrade --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple awkward
-```
 
 ### Guidelines for Dependency and Version Changes
 

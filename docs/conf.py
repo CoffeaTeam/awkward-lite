@@ -20,20 +20,15 @@ import pathlib
 
 # -- Project information -----------------------------------------------------
 
-project = "Awkward Array"
-copyright = f"{datetime.datetime.now().year}, Awkward Array development team"
-author = "Jim Pivarski"
+project = "Awkward Array Lite"
+copyright = "Awkward Array Lite developers. Derived from Awkward Array, see the LICENSE"
+author = "Awkward Array Lite developers"
 
 parts = awkward.__version__.split(".")
 version = ".".join(parts[:2])
 release = ".".join(parts)
 
 # -- Environment variables ---------------------------------------------------
-# Allow the CI to set version_match="main"
-version_match = os.environ.get("DOCS_VERSION", version)
-canonical_version = os.environ.get("DOCS_CANONICAL_VERSION")
-report_analytics = os.environ.get("DOCS_REPORT_ANALYTICS", False)
-show_version_switcher = os.environ.get("DOCS_SHOW_VERSION", False)
 run_cppyy_notebooks = os.environ.get("DOCS_RUN_CPPYY", False)
 
 # -- General configuration ---------------------------------------------------
@@ -167,7 +162,7 @@ def _github_source_link(obj):
     rel_path = os.path.relpath(file_path, repo_root)
     module_name = rel_path.replace("/", ".").replace(".py", "").replace("src.", "")
     line_no = source_obj.obj.get("from_line_no")
-    base_url = f"https://github.com/scikit-hep/awkward/blob/{_latest_commit}/{rel_path}"
+    base_url = f"https://github.com/CoffeaTeam/awkward-lite/blob/{_latest_commit}/{rel_path}"
     if line_no:
         return f"Defined in `{module_name} <{base_url}>`__ on `line {line_no} <{base_url}#L{line_no}>`__."
     return f"Defined in `{module_name} <{base_url}>`__."
@@ -223,16 +218,6 @@ def autoapi_prepare_jinja_env(jinja_env):
     jinja_env.globals["is_internal_module"] = _is_internal_module
 
 
-# Specify a canonical version
-if canonical_version is not None:
-    html_baseurl = f"https://awkward-array.org/doc/{canonical_version}/"
-
-    # Build sitemap on main
-    if version_match == canonical_version:
-        extensions.append("sphinx_sitemap")
-        # Sitemap URLs are relative to `html_baseurl`
-        sitemap_url_scheme = "{link}"
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -247,8 +232,8 @@ exclude_patterns = ["_build", "_templates", "_autoapi_templates", "Thumbs.db", "
 # a list of builtin themes.
 
 html_context = {
-    "github_user": "scikit-hep",
-    "github_repo": "awkward",
+    "github_user": "CoffeaTeam",
+    "github_repo": "awkward-lite",
     "github_version": "main",
     "doc_path": "docs",
 }
@@ -259,51 +244,24 @@ html_theme_options = {
         "image_light": "_static/image/logo-300px.png",
         "image_dark": "_static/image/logo-300px-white.png",
     },
-    "github_url": "https://github.com/scikit-hep/awkward",
-    # Add light/dark mode and documentation version switcher:
+    "github_url": "https://github.com/CoffeaTeam/awkward-lite",
+    # Add the light/dark mode switch:
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
-    "footer_start": ["copyright", "sphinx-version", "funding"],
-    "icon_links": [
-        {
-            "name": "PyPI",
-            "url": "https://pypi.org/project/awkward",
-            "icon": "fa-brands fa-python",
-        },
-    ],
+    "footer_start": ["copyright", "sphinx-version"],
     "use_edit_page_button": True,
     "external_links": [
         {
             "name": "Contributor guide",
-            "url": "https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md",
-        },
-        {
-            "name": "Release history",
-            "url": "https://github.com/scikit-hep/awkward/releases",
+            "url": "https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md",
         },
     ],
 }
-
-# Disable analytics for previews
-if report_analytics:
-    html_theme_options["analytics"] = {
-        "plausible_analytics_domain": "awkward-array.org",
-        "plausible_analytics_url": "https://views.scientific-python.org/js/plausible.js",
-    }
-
-# Don't show version for offline builds by default
-if show_version_switcher:
-    html_theme_options["switcher"] = {
-        "json_url": "https://awkward-array.org/doc/switcher.json",
-        "version_match": version_match,
-    }
-    html_theme_options["navbar_start"] = ["navbar-logo", "version-switcher"]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_css_files = ["css/awkward.css"]
-html_js_files = ["js/awkward.js"]
 
 # MyST settings
 myst_enable_extensions = ["colon_fence", "deflist"]

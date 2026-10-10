@@ -16,7 +16,7 @@ How to examine a single item in detail
 
 It's often useful to pull out a single item from an array to inspect its contents, particularly in the early stages of a data analysis, to get a sense of the data's structure. This tutorial shows how to extract one item from an Awkward Array and examine it in different ways.
 
-For this example, we'll to use the Chicago taxi trips dataset from [10 minutes to Awkward Array](https://awkward-array.org/doc/main/getting-started/10-minutes-to-awkward-array.html). Recall that this dataset includes information about trips by various taxis collected over a few years, enriched with GPS path data.
+For this example, we'll to use the Chicago taxi trips dataset from [10 minutes to Awkward Array](../getting-started/10-minutes-to-awkward-array.md). Recall that this dataset includes information about trips by various taxis collected over a few years, enriched with GPS path data.
 
 +++
 
@@ -27,7 +27,7 @@ First, let's load the dataset using the {func}`ak.from_parquet` function. We wil
 ```{code-cell} ipython3
 import awkward as ak
 
-url = "https://test-files.awkward-array.org/chicago-taxi.parquet"
+url = "https://zenodo.org/records/14537442/files/chicago-taxi.parquet"
 taxi = ak.from_parquet(
     url,
     row_groups=[0],

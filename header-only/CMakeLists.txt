@@ -1,5 +1,5 @@
 # BSD 3-Clause License; see
-# https://github.com/scikit-hep/awkward/blob/main/LICENSE
+# https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 cmake_minimum_required(VERSION 3.15...3.24)
 

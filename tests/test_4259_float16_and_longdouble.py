@@ -35,6 +35,11 @@ def values(dtype):
     return out.astype(dtype)
 
 
+def result_dtype(expected):
+    # NumPy counts and indexes with intp, which is int32 on 32-bit platforms
+    return np.dtype(np.int64) if expected.dtype.kind == "i" else expected.dtype
+
+
 @pytest.mark.parametrize("dtype", [np.float16, np.longdouble, np.clongdouble])
 @pytest.mark.parametrize("ak_reducer, np_reducer", REDUCERS)
 def test_reducers(dtype, ak_reducer, np_reducer):
@@ -43,7 +48,7 @@ def test_reducers(dtype, ak_reducer, np_reducer):
 
     result = ak.to_numpy(ak_reducer(array, axis=1))
     expected = np_reducer(data, axis=1)
-    assert result.dtype == expected.dtype
+    assert result.dtype == result_dtype(expected)
     if ak_reducer in (ak.sum, ak.prod):
         # the kernels and NumPy do not add and multiply in the same order
         assert np.allclose(
@@ -86,7 +91,7 @@ def test_float16_axis_none():
     for ak_reducer, np_reducer in REDUCERS:
         result = ak_reducer(array, axis=None)
         expected = np_reducer(data)
-        assert np.asarray(result).dtype == np.asarray(expected).dtype
+        assert np.asarray(result).dtype == result_dtype(np.asarray(expected))
         assert result == pytest.approx(expected, rel=1e-2)
 
 
@@ -148,6 +153,30 @@ def test_complex_numbers_cannot_be_sorted(dtype):
         ak._do.unique(array.layout, axis=-1)
 
 
+@pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
+def test_unique_complex_numbers_without_an_axis(dtype):
+    data = np.array([2 + 1j, 1 + 2j, 2 + 1j, 1 - 1j, 1 + 2j], dtype=dtype)
+
+    for array in (ak.Array(data), ak.unflatten(ak.Array(data), [2, 0, 3])):
+        result = ak.to_numpy(ak._do.unique(array.layout, axis=None))
+        assert result.dtype == np.dtype(dtype)
+        assert np.array_equal(result, np.unique(data))
+        assert not ak._do.is_unique(array.layout)
+
+    assert ak._do.is_unique(ak.Array(data[2:]).layout)
+
+
+def test_unique_date_times():
+    data = np.array(["2020-01-02", "2020-01-01", "2020-01-02"], "datetime64[s]")
+    array = ak.Array(data)
+
+    result = ak.to_numpy(ak._do.unique(array.layout, axis=None))
+    assert np.array_equal(result, np.unique(data))
+
+    with pytest.raises(ValueError, match="cannot find the unique values of"):
+        ak._do.unique(ak.unflatten(array, [2, 1]).layout, axis=-1)
+
+
 @pytest.mark.parametrize("dtype", [np.float16, np.longdouble, np.clongdouble])
 def test_type_strings_can_be_parsed(dtype):
     array = ak.from_regular(ak.Array(values(dtype)))
@@ -195,19 +224,14 @@ def test_from_iter_with_numpy_scalars():
 
 @pytest.mark.parametrize("scalar", [np.longdouble(1.5), np.clongdouble(1.5 + 2j)])
 def test_builder_with_long_double_scalars(scalar):
+    # the builder holds float64 and complex128 numbers, whatever the type
+    # of the NumPy scalar
     builder = ak.ArrayBuilder()
+    builder.append(scalar)
 
-    if LONGDOUBLE_IS_WIDER:
-        message = "ArrayBuilder holds float64 and complex128 numbers"
-        with pytest.raises(ValueError, match=message):
-            ak.from_iter([scalar])
-        with pytest.raises(ValueError, match=message):
-            builder.append(scalar)
-    else:
-        builder.append(scalar)
-        for array in (ak.from_iter([scalar]), builder.snapshot()):
-            assert array.to_list() == [scalar]
-            assert array.layout.dtype.type in (np.float64, np.complex128)
+    for array in (ak.from_iter([scalar]), builder.snapshot()):
+        assert array.to_list() == [scalar]
+        assert array.layout.dtype.type in (np.float64, np.complex128)
 
 
 @pytest.mark.parametrize(
@@ -243,19 +267,15 @@ def test_json():
     assert json.loads(ak.to_json(half)) == half.to_list()
 
     array = ak.from_regular(ak.Array(values(np.longdouble)))
-    if LONGDOUBLE_IS_WIDER:
-        with pytest.raises(TypeError, match="written as JSON without losing"):
-            ak.to_json(array)
-    else:
-        assert json.loads(ak.to_json(array)) == array.to_list()
+    assert json.loads(ak.to_json(array)) == array.to_list()
 
-    array = ak.from_regular(ak.Array(values(np.clongdouble)))
-    if LONGDOUBLE_IS_WIDER:
-        with pytest.raises(TypeError, match="written as JSON without losing"):
-            ak.to_json(array, complex_record_fields=("real", "imag"))
-    else:
-        written = json.loads(ak.to_json(array, complex_record_fields=("real", "imag")))
-        assert written[0][0] == {"real": array[0, 0].real, "imag": array[0, 0].imag}
+    # JSON is written from Python floats, so it has the nearest double
+    third = np.longdouble(1) / np.longdouble(3)
+    assert json.loads(ak.to_json(ak.Array(np.array([third])))) == [float(third)]
+
+    array = ak.Array(np.array([third + 2j * third], dtype=np.clongdouble))
+    written = ak.to_json(array, complex_record_fields=("real", "imag"))
+    assert json.loads(written) == [{"real": float(third), "imag": 2 * float(third)}]
 
 
 def test_arrow():

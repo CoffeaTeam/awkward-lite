@@ -609,9 +609,18 @@ class NumpyArray(NumpyMeta, Content):
     def is_contiguous(self) -> bool:
         return self._backend.nplike.is_c_contiguous(self._data)
 
+    def _float16_as_float32(self):
+        # The kernels have no half-precision versions. float32 holds every
+        # float16 value, so they are given float32 data.
+        return self._numbers_to_type("float32", False)
+
     def _subranges_equal(self, starts, stops, length, sorted=True):
         if not self.is_contiguous:
             return self.to_contiguous()._subranges_equal(starts, stops, length, sorted)
+        elif self.dtype == np.float16:
+            return self._float16_as_float32()._subranges_equal(
+                starts, stops, length, sorted
+            )
 
         is_equal = self._backend.nplike.zeros(1, dtype=np.bool_)
 
@@ -754,6 +763,17 @@ class NumpyArray(NumpyMeta, Content):
 
         elif len(self.shape) == 0:
             return self
+
+        elif self.dtype == np.float16:
+            out = self._float16_as_float32()._unique(
+                negaxis, starts, offsets, outlength
+            )
+            return out._numbers_to_type("float16", False)
+
+        elif self.dtype.kind == "c" or (
+            negaxis is not None and self.dtype.kind.upper() == "M"
+        ):
+            raise ValueError(f"cannot find the unique values of {self.dtype!r}")
 
         elif negaxis is None:
             contiguous_self = self.to_contiguous()
@@ -911,6 +931,12 @@ class NumpyArray(NumpyMeta, Content):
             return self.to_contiguous()._argsort_next(
                 negaxis, starts, shifts, offsets, outlength, ascending, stable
             )
+        elif self.dtype == np.float16:
+            return self._float16_as_float32()._argsort_next(
+                negaxis, starts, shifts, offsets, outlength, ascending, stable
+            )
+        elif self.dtype.kind == "c":
+            raise ValueError(f"cannot sort (ak.argsort) values of {self.dtype!r}")
         else:
             offsets_length = offsets.length
 
@@ -998,6 +1024,13 @@ class NumpyArray(NumpyMeta, Content):
             return self.to_contiguous()._sort_next(
                 negaxis, starts, offsets, outlength, ascending, stable
             )
+        elif self.dtype == np.float16:
+            out = self._float16_as_float32()._sort_next(
+                negaxis, starts, offsets, outlength, ascending, stable
+            )
+            return out._numbers_to_type("float16", False)
+        elif self.dtype.kind == "c":
+            raise ValueError(f"cannot sort (ak.sort) values of {self.dtype!r}")
 
         else:
             offsets_length = offsets.length
@@ -1086,7 +1119,15 @@ class NumpyArray(NumpyMeta, Content):
         # No more `parents_to_offsets_aligned` round-trip — `offsets` is the
         # bin descriptor we receive directly.
 
-        out = reducer.apply(self, offsets, starts, shifts, outlength)
+        if self.dtype == np.float16:
+            out = reducer.apply(
+                self._float16_as_float32(), offsets, starts, shifts, outlength
+            )
+            # a reducer that returns the type of its input returns float16
+            if out.dtype == np.float32:
+                out = out._numbers_to_type("float16", False)
+        else:
+            out = reducer.apply(self, offsets, starts, shifts, outlength)
 
         if mask:
             outmask = ak.index.Index8.empty(outlength, self._backend.nplike)

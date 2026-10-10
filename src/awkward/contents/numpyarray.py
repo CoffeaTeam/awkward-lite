@@ -770,10 +770,20 @@ class NumpyArray(NumpyMeta, Content):
             )
             return out._numbers_to_type("float16", False)
 
+        elif self.dtype.kind == "c" and negaxis is None:
+            # the kernels cannot sort complex numbers, NumPy can
+            return ak.contents.NumpyArray(
+                self._backend.nplike.unique_values(self.to_contiguous()._data),
+                parameters=None,
+                backend=self._backend,
+            )
+
         elif self.dtype.kind == "c" or (
             negaxis is not None and self.dtype.kind.upper() == "M"
         ):
-            raise ValueError(f"cannot find the unique values of {self.dtype!r}")
+            raise ValueError(
+                f"cannot find the unique values of {self.dtype!r} along an axis"
+            )
 
         elif negaxis is None:
             contiguous_self = self.to_contiguous()

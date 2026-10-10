@@ -1,4 +1,4 @@
-# BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ class PlaceholderArray(MaterializableArray):
             )
         msg += (
             " This is unexpected behavior — please open an issue at "
-            "https://github.com/scikit-hep/awkward/issues with a minimal example."
+            "https://github.com/CoffeaTeam/awkward-lite/issues with a minimal example."
         )
         raise RuntimeError(msg)
 
@@ -134,7 +134,7 @@ class PlaceholderArray(MaterializableArray):
                     "it has been excluded during a pre-run phase (possibly by Dask). "
                 )
                 msg += "If this was supposed to happen automatically (e.g. you're using Dask), "
-                msg += "please report it to the developers at: https://github.com/scikit-hep/awkward/issues"
+                msg += "please report it to the developers at: https://github.com/CoffeaTeam/awkward-lite/issues"
             raise TypeError(msg)
 
     def tolist(self):

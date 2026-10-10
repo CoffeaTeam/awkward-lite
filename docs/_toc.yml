@@ -1,5 +1,5 @@
 root: index
-title: "Awkward Array"
+title: "Awkward Array Lite"
 
 defaults:
   titlesonly: True
@@ -14,7 +14,6 @@ subtrees:
               - file: getting-started/uproot-awkward-columnar-hats
               - file: getting-started/jagged-ragged-awkward-arrays
               - file: getting-started/thinking-in-arrays
-              - file: getting-started/papers-and-talks
       - file: user-guide/index
         subtrees:
           - entries:

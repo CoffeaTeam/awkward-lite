@@ -5,7 +5,6 @@ pycparser
 lark-parser
 sphinx-copybutton
 sphinx-design
-sphinx-sitemap
 pydata-sphinx-theme
 myst-nb~=1.0
 nbconvert

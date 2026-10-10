@@ -1,5 +1,5 @@
 // BSD 3-Clause License; see
-// https://github.com/scikit-hep/awkward/blob/main/LICENSE
+// https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 // Regression tests for:
 //   * BitMasked use-after-free / wrong-byte bugs (the mask reference member),

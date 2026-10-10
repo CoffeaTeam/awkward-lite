@@ -14,11 +14,6 @@ awkward-cpp/tests-cpu-kernels-explicit
 awkward-cpp/tests-spec
 awkward-cpp/tests-spec-explicit
 
-# to use all-contributors-cli without adding it to the project
-node_modules
-package.json
-yarn.lock
-
 array*.parquet
 
 ############################################################# Sphinx & Doxygen

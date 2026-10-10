@@ -43,25 +43,26 @@ How to use Layout Builders?
 -----------------------------
 
 :::{note}
-A set of example projects that use the header-only layout-builder can be found [in Awkward Array's repository](https://github.com/scikit-hep/awkward/tree/main/header-only/examples).
+A set of example projects that use the header-only layout-builder can be found [in this repository](https://github.com/CoffeaTeam/awkward-lite/tree/main/header-only/examples).
 :::
 
-If you are using the CMake project generator, then the `awkward-headers` library can be installed using `FetchContent` for a particular version:
+If you are using the CMake project generator, then the `awkward-headers` library can be installed using `FetchContent`:
 ```cmake
 include(FetchContent)
 
-set(AWKWARD_VERSION "v2.1.0")
-
 FetchContent_Declare(
   awkward-headers
-  URL      https://github.com/scikit-hep/awkward/releases/download/${AWKWARD_VERSION}/header-only.zip
+  GIT_REPOSITORY https://github.com/CoffeaTeam/awkward-lite.git
+  GIT_TAG        main
+  GIT_SHALLOW    TRUE
+  GIT_SUBMODULES ""
 )
 # Instead of using `FetchContent_MakeAvailable(awkward-headers)`, we manually load the target so
-# that we can EXCLUDE_FROM_ALL
+# that we can EXCLUDE_FROM_ALL. The headers are in the `header-only` directory of the repository.
 FetchContent_GetProperties(awkward-headers)
 if(NOT awkward-headers_POPULATED)
   FetchContent_Populate(awkward-headers)
-  add_subdirectory(${awkward-headers_SOURCE_DIR} ${awkward-headers_BINARY_DIR} EXCLUDE_FROM_ALL)
+  add_subdirectory(${awkward-headers_SOURCE_DIR}/header-only ${awkward-headers_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 ```
 
@@ -70,7 +71,7 @@ The loaded targets can then be linked against, e.g. to link `my_application` aga
 target_link_libraries(my_application awkward::layout-builder)
 ```
 
-If you are using a different generator, it is recommended to download these headers from the [release artifacts on GitHub](https://github.com/scikit-hep/awkward/releases). Each of the targets enumerated in `CMakeLists.txt` should be added to the include path that is passed to the compiler.
+If you are using a different generator, copy the [`header-only` directory](https://github.com/CoffeaTeam/awkward-lite/tree/main/header-only) of this repository. Each of the targets enumerated in `CMakeLists.txt` should be added to the include path that is passed to the compiler.
 
 
 Three phases of using Layout Builder
@@ -292,4 +293,4 @@ py::object snapshot_builder(const T& builder)
 
 More Examples
 -------------
-Examples for other LayoutBuilders can be found [here](https://github.com/scikit-hep/awkward/blob/main/header-only/tests/test_1494-layout-builder.cpp).
+Examples for other LayoutBuilders can be found [here](https://github.com/CoffeaTeam/awkward-lite/blob/main/header-only/tests/test_1494-layout-builder.cpp).

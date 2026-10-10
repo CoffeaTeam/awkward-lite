@@ -9,13 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="2256.6536"
+   width="4178.15554"
    height="815.07831"
    id="svg3377"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="logo.svg"
-   inkscape:export-filename="/home/pivarski/diana/awkward-array/docs/source/logo-600px.png"
    inkscape:export-xdpi="25.524521"
    inkscape:export-ydpi="25.524521">
   <defs
@@ -108,6 +107,22 @@
          id="path3414"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccssccccccczssssccccccsscc" />
+      <path
+         d="M2564.127 613.677C2529.311 739.354 2469.02 794.55 2365.421 796.249H2347.589C2285.599 797.947 2270.314 786.059 2271.163 735.958V351.284C2271.163 298.636 2271.163 296.088 2277.108 287.597C2284.75 278.256 2300.884 274.859 2347.589 274.859H2366.27V229.004H2029.999V274.859H2042.737C2088.592 274.859 2104.726 278.256 2112.369 287.597C2118.313 296.088 2118.313 298.636 2118.313 351.284V718.974C2118.313 772.472 2118.313 775.02 2112.369 783.511C2104.726 792.852 2087.743 796.249 2042.737 796.249H2029.999V842.104H2598.943L2609.133 613.677Z"
+         style="color:#000000;font-family:'Century Schoolbook L';-inkscape-font-specification:'Century Schoolbook L Bold';display:inline;overflow:visible;visibility:visible;fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:33.02915955;marker:none;enable-background:accumulate"
+         id="lite-0-L" />
+      <path
+         d="M2850.297 440.447 2650.742 446.391V489.699H2662.63C2714.43 490.548 2716.977 493.945 2716.977 569.521V719.824V758.885V765.679C2716.128 777.567 2715.279 782.662 2711.882 787.757C2706.787 795.4 2689.804 798.796 2654.139 798.796H2650.742V842.104H2916.532V798.796H2911.437C2857.939 797.947 2850.297 792.852 2850.297 762.282V719.824ZM2781.514 216.266C2739.905 216.266 2705.938 250.233 2705.938 290.993C2705.938 332.602 2739.905 366.569 2779.816 366.569C2823.123 366.569 2856.241 333.452 2856.241 290.993C2856.241 250.233 2822.274 216.266 2781.514 216.266Z"
+         style="color:#000000;font-family:'Century Schoolbook L';-inkscape-font-specification:'Century Schoolbook L Bold';display:inline;overflow:visible;visibility:visible;fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:33.02915955;marker:none;enable-background:accumulate"
+         id="lite-1-i" />
+      <path
+         d="M3264.691 440.447H3154.299V272.311H3100.801C3087.215 381.005 3041.36 437.899 2960.689 447.24V491.397H3020.98V694.348C3020.98 763.98 3024.376 784.36 3038.812 808.137C3056.645 837.858 3093.159 854.841 3141.562 854.841C3189.964 854.841 3228.177 838.707 3251.104 808.986C3272.334 780.964 3285.071 741.053 3285.071 703.689C3285.071 699.443 3285.071 692.65 3284.222 684.158H3239.216C3240.065 747.846 3220.534 782.662 3185.718 782.662C3161.092 782.662 3154.299 767.377 3154.299 709.634V491.397H3264.691Z"
+         style="color:#000000;font-family:'Century Schoolbook L';-inkscape-font-specification:'Century Schoolbook L Bold';display:inline;overflow:visible;visibility:visible;fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:33.02915955;marker:none;enable-background:accumulate"
+         id="lite-2-t" />
+      <path
+         d="M3761.455 648.493V634.907C3761.455 508.38 3683.331 427.709 3558.504 427.709C3489.721 427.709 3433.676 449.788 3391.217 493.095C3353.005 533.006 3330.077 589.052 3330.077 645.097C3330.077 706.237 3356.401 766.528 3398.86 803.042C3437.922 836.16 3494.816 854.841 3559.353 854.841C3658.705 854.841 3724.091 810.685 3761.455 719.824L3719.846 702.84C3685.879 769.075 3648.515 797.098 3592.47 797.098C3553.409 797.098 3519.442 778.416 3498.213 746.148C3483.777 723.22 3477.832 696.896 3476.983 648.493ZM3477.832 601.789C3477.832 521.118 3510.101 471.866 3561.051 471.866C3605.208 471.866 3628.135 507.531 3628.135 574.616C3628.135 594.996 3622.191 601.789 3605.208 601.789Z"
+         style="color:#000000;font-family:'Century Schoolbook L';-inkscape-font-specification:'Century Schoolbook L Bold';display:inline;overflow:visible;visibility:visible;fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:33.02915955;marker:none;enable-background:accumulate"
+         id="lite-3-e" />
       <g
          style="color:#000000;font-weight:normal;font-size:139.29122925px;line-height:125%;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif';display:inline;overflow:visible;visibility:visible;fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:10;marker:none;enable-background:accumulate"
          id="text2999"

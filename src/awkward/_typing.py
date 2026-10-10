@@ -1,4 +1,4 @@
-# BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 # pylint: disable=wildcard-import, unused-wildcard-import
 # ruff: noqa: PLE0604

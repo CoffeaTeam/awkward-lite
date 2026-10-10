@@ -1,4 +1,4 @@
-# BSD 3-Clause License; see https://github.com/scikit-hep/awkward/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 
 import threading
@@ -60,7 +60,7 @@ class ErrorContext:
 
         note = self.note
         if issubclass(cls, (NotImplementedError, AssertionError)):
-            note = "\n\nSee if this has been reported at https://github.com/scikit-hep/awkward/issues"
+            note = "\n\nSee if this has been reported at https://github.com/CoffeaTeam/awkward-lite/issues"
         return _add_note(exception, note)
 
     def format_argument(self, width, value):

@@ -1,4 +1,4 @@
-# BSD 3-Clause License; see https://github.com/scikit-hep/awkward-1.0/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 cmake_minimum_required(VERSION 3.15...3.30)
 
@@ -102,7 +102,7 @@ if(NOT (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/header-only"
       "\
 awkward-cpp relies upon generated and copied artefacts such as the header-only libraries and generated kernel headers. \
 These could not be found and could not be generated (generation requires the repository sources at '${AWKWARD_REPO_ROOT}'). \
-Please check https://github.com/scikit-hep/awkward#installation-for-developers to learn more about this process.\
+Please check https://github.com/CoffeaTeam/awkward-lite#installation-for-developers to learn more about this process.\
 ")
 endif()
 

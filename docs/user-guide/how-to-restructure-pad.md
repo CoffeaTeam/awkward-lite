@@ -18,7 +18,7 @@ Most applications of arrays expect them to be rectilinear—a rectangular table 
 
 This tutorial presents several ways of doing that. Like [flattening for plots](how-to-restructure-flatten), the method you choose will depend on what your data mean and what you want to get out of the machine learning process. For instance, if you remove all list structures with {func}`ak.flatten`, you can't expect the machine learning algorithm to learn about lists (whatever they mean in your application), and if you truncate them at a particular length, it won't learn about the values that have been removed.
 
-(In principle, graph neural networks should be able to learn about variable-length data without any losses, but I'm not familiar enough with how to set up these processes to explain it. If you're an expert, we'd like to hear tips and tricks in [GitHub Discussions](https://github.com/scikit-hep/awkward-1.0/discussions)!)
+(In principle, graph neural networks should be able to learn about variable-length data without any losses, but I'm not familiar enough with how to set up these processes to explain it.)
 
 ```{code-cell} ipython3
 import awkward as ak

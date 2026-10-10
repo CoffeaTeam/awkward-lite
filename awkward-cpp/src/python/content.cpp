@@ -6,7 +6,6 @@
 #include <pybind11/complex.h>
 #include <pybind11/chrono.h>
 #include <math.h>
-#include <limits>
 
 #include "awkward/python/content.h"
 #include "awkward/python/util.h"
@@ -18,25 +17,6 @@ using namespace pybind11::literals;
 bool
 builder_fromiter_iscomplex(const py::handle& obj) {
   return PyComplex_Check(obj.ptr());
-}
-
-// The builder holds real numbers as double and complex numbers as pairs of
-// doubles. Where long double is wider than double, a long double value would
-// lose digits in it.
-void
-builder_fromiter_notlongdouble(const py::handle& obj) {
-  if (std::numeric_limits<long double>::digits > std::numeric_limits<double>::digits  &&
-      (py::isinstance(obj, py::module::import("numpy").attr("longdouble"))  ||
-       py::isinstance(obj, py::module::import("numpy").attr("clongdouble")))) {
-    throw std::invalid_argument(
-      std::string("cannot convert ")
-      + obj.attr("__repr__")().cast<std::string>() + std::string(" (type ")
-      + obj.attr("__class__").attr("__name__").cast<std::string>()
-      + std::string(") to an array element because an ArrayBuilder holds "
-                    "float64 and complex128 numbers, which have fewer digits. "
-                    "Convert the value with float or complex first, or make "
-                    "the array from a NumPy array") + FILENAME(__LINE__));
-  }
 }
 
 void
@@ -190,11 +170,9 @@ builder_fromiter(ak::ArrayBuilder& self, const py::handle& obj) {
     self.integer(obj.cast<int64_t>());
   }
   else if (py::isinstance(obj, py::module::import("numpy").attr("floating"))) {
-    builder_fromiter_notlongdouble(obj);
     self.real(obj.cast<double>());
   }
   else if (py::isinstance(obj, py::module::import("numpy").attr("complexfloating"))) {
-    builder_fromiter_notlongdouble(obj);
     self.complex(obj.cast<std::complex<double>>());
   }
   else if (py::hasattr(obj, "to_list")) {

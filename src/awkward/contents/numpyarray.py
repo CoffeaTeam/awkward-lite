@@ -1360,16 +1360,10 @@ class NumpyArray(NumpyMeta, Content):
 
         data = self._data
         if json_conversions is not None and data.dtype.type is np.longdouble:
-            # JSON numbers are written from Python floats, which are doubles
-            if data.dtype != np.float64:
-                raise TypeError(
-                    f"{data.dtype.name} values cannot be written as JSON without "
-                    "losing digits. Convert them with ak.values_astype(array, "
-                    "np.float64) first"
-                )
-            # long double is the same as double on this platform
+            # The json module writes Python floats, which are doubles. A long
+            # double is written as the nearest double.
             (data,) = maybe_materialize(data)
-            data = data.view(np.float64)
+            data = data.astype(np.float64)
         out = data.tolist()
 
         if json_conversions is not None:

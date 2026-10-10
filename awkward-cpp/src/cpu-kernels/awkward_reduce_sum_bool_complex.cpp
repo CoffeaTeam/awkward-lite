@@ -27,3 +27,4 @@ ERROR awkward_reduce_sum_bool_complex(
 
 WRAPPER(awkward_reduce_sum_bool_complex64_64, float)
 WRAPPER(awkward_reduce_sum_bool_complex128_64, double)
+WRAPPER(awkward_reduce_sum_bool_complex256_64, long double)

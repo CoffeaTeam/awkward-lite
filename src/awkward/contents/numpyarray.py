@@ -1361,7 +1361,9 @@ class NumpyArray(NumpyMeta, Content):
         data = self._data
         if json_conversions is not None and data.dtype.type is np.longdouble:
             # The json module writes Python floats, which are doubles. A long
-            # double is written as the nearest double.
+            # double is written as the nearest double, which is infinite for a
+            # value beyond the range of double. The strings below are chosen
+            # from the converted values for that reason.
             (data,) = maybe_materialize(data)
             data = data.astype(np.float64)
         out = data.tolist()
@@ -1369,19 +1371,18 @@ class NumpyArray(NumpyMeta, Content):
         if json_conversions is not None:
             nan_string = json_conversions["nan_string"]
             if nan_string is not None:
-                for i in self._backend.nplike.nonzero(
-                    self._backend.nplike.isnan(self._data)
-                )[0]:
+                is_nan = self._backend.nplike.isnan(data)
+                for i in self._backend.nplike.nonzero(is_nan)[0]:
                     out[i] = nan_string
 
             posinf_string = json_conversions["posinf_string"]
             if posinf_string is not None:
-                for i in self._backend.nplike.nonzero(self._data == np.inf)[0]:
+                for i in self._backend.nplike.nonzero(data == np.inf)[0]:
                     out[i] = posinf_string
 
             neginf_string = json_conversions["neginf_string"]
             if neginf_string is not None:
-                for i in self._backend.nplike.nonzero(self._data == -np.inf)[0]:
+                for i in self._backend.nplike.nonzero(data == -np.inf)[0]:
                     out[i] = neginf_string
 
         return out

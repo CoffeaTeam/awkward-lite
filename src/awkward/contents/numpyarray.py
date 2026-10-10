@@ -1198,6 +1198,10 @@ class NumpyArray(NumpyMeta, Content):
             )
         (nparray,) = maybe_materialize(self._raw(numpy))
 
+        if nparray.dtype.type is np.longdouble and nparray.dtype == np.float64:
+            # long double is the same as double on this platform
+            nparray = nparray.view(np.float64)
+
         if (
             np.issubdtype(nparray.dtype, np.datetime64)
             and nparray.dtype.name == "datetime64[D]"
@@ -1205,7 +1209,14 @@ class NumpyArray(NumpyMeta, Content):
             nparray = nparray.astype("timedelta64[D]").astype(np.int32)
             storage_type = pyarrow.date32()
         else:
-            storage_type = pyarrow.from_numpy_dtype(nparray.dtype)
+            try:
+                storage_type = pyarrow.from_numpy_dtype(nparray.dtype)
+            except pyarrow.ArrowNotImplementedError:
+                raise TypeError(
+                    f"Arrow has no type for {nparray.dtype.name} values. Convert "
+                    "them with ak.values_astype before converting the array to "
+                    "Arrow"
+                ) from None
 
         if issubclass(nparray.dtype.type, (bool, np.bool_)):
             nparray = numpy.packbits(nparray, bitorder="little")
@@ -1337,7 +1348,19 @@ class NumpyArray(NumpyMeta, Content):
                         backend=self._backend,
                     )._to_list(behavior, json_conversions)
 
-        out = self._data.tolist()
+        data = self._data
+        if json_conversions is not None and data.dtype.type is np.longdouble:
+            # JSON numbers are written from Python floats, which are doubles
+            if data.dtype != np.float64:
+                raise TypeError(
+                    f"{data.dtype.name} values cannot be written as JSON without "
+                    "losing digits. Convert them with ak.values_astype(array, "
+                    "np.float64) first"
+                )
+            # long double is the same as double on this platform
+            (data,) = maybe_materialize(data)
+            data = data.view(np.float64)
+        out = data.tolist()
 
         if json_conversions is not None:
             nan_string = json_conversions["nan_string"]

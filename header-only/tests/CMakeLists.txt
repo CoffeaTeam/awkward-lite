@@ -20,6 +20,8 @@ addtest_nolibs(test_4087-bitmasked-growablebuffer
                test_4087-bitmasked-growablebuffer.cpp)
 addtest_nolibs(test_4088-layoutbuilder-form-fixes
                test_4088-layoutbuilder-form-fixes.cpp)
+addtest_nolibs(test_4259-layout-builder-long-double
+               test_4259-layout-builder-long-double.cpp)
 
 target_link_libraries(test_1494-layout-builder PRIVATE awkward::layout-builder)
 target_link_libraries(test_1542-growable-buffer
@@ -31,4 +33,6 @@ target_link_libraries(test_3091-layout-builder-is-valid
 target_link_libraries(test_4087-bitmasked-growablebuffer
                       PRIVATE awkward::layout-builder)
 target_link_libraries(test_4088-layoutbuilder-form-fixes
+                      PRIVATE awkward::layout-builder)
+target_link_libraries(test_4259-layout-builder-long-double
                       PRIVATE awkward::layout-builder)

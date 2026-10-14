@@ -54,6 +54,8 @@ class NumpyMetadata(PublicSingleton):
     float64 = numpy.float64
     complex64 = numpy.complex64
     complex128 = numpy.complex128
+    longdouble = numpy.longdouble
+    clongdouble = numpy.clongdouble
     str_ = numpy.str_
     bytes_ = numpy.bytes_
 

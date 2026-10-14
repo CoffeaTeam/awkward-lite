@@ -609,9 +609,18 @@ class NumpyArray(NumpyMeta, Content):
     def is_contiguous(self) -> bool:
         return self._backend.nplike.is_c_contiguous(self._data)
 
+    def _float16_as_float32(self):
+        # The kernels have no half-precision versions. float32 holds every
+        # float16 value, so they are given float32 data.
+        return self._numbers_to_type("float32", False)
+
     def _subranges_equal(self, starts, stops, length, sorted=True):
         if not self.is_contiguous:
             return self.to_contiguous()._subranges_equal(starts, stops, length, sorted)
+        elif self.dtype == np.float16:
+            return self._float16_as_float32()._subranges_equal(
+                starts, stops, length, sorted
+            )
 
         is_equal = self._backend.nplike.zeros(1, dtype=np.bool_)
 
@@ -754,6 +763,27 @@ class NumpyArray(NumpyMeta, Content):
 
         elif len(self.shape) == 0:
             return self
+
+        elif self.dtype == np.float16:
+            out = self._float16_as_float32()._unique(
+                negaxis, starts, offsets, outlength
+            )
+            return out._numbers_to_type("float16", False)
+
+        elif self.dtype.kind == "c" and negaxis is None:
+            # the kernels cannot sort complex numbers, NumPy can
+            return ak.contents.NumpyArray(
+                self._backend.nplike.unique_values(self.to_contiguous()._data),
+                parameters=None,
+                backend=self._backend,
+            )
+
+        elif self.dtype.kind == "c" or (
+            negaxis is not None and self.dtype.kind.upper() == "M"
+        ):
+            raise ValueError(
+                f"cannot find the unique values of {self.dtype!r} along an axis"
+            )
 
         elif negaxis is None:
             contiguous_self = self.to_contiguous()
@@ -911,6 +941,12 @@ class NumpyArray(NumpyMeta, Content):
             return self.to_contiguous()._argsort_next(
                 negaxis, starts, shifts, offsets, outlength, ascending, stable
             )
+        elif self.dtype == np.float16:
+            return self._float16_as_float32()._argsort_next(
+                negaxis, starts, shifts, offsets, outlength, ascending, stable
+            )
+        elif self.dtype.kind == "c":
+            raise ValueError(f"cannot sort (ak.argsort) values of {self.dtype!r}")
         else:
             offsets_length = offsets.length
 
@@ -998,6 +1034,13 @@ class NumpyArray(NumpyMeta, Content):
             return self.to_contiguous()._sort_next(
                 negaxis, starts, offsets, outlength, ascending, stable
             )
+        elif self.dtype == np.float16:
+            out = self._float16_as_float32()._sort_next(
+                negaxis, starts, offsets, outlength, ascending, stable
+            )
+            return out._numbers_to_type("float16", False)
+        elif self.dtype.kind == "c":
+            raise ValueError(f"cannot sort (ak.sort) values of {self.dtype!r}")
 
         else:
             offsets_length = offsets.length
@@ -1086,7 +1129,15 @@ class NumpyArray(NumpyMeta, Content):
         # No more `parents_to_offsets_aligned` round-trip — `offsets` is the
         # bin descriptor we receive directly.
 
-        out = reducer.apply(self, offsets, starts, shifts, outlength)
+        if self.dtype == np.float16:
+            out = reducer.apply(
+                self._float16_as_float32(), offsets, starts, shifts, outlength
+            )
+            # a reducer that returns the type of its input returns float16
+            if out.dtype == np.float32:
+                out = out._numbers_to_type("float16", False)
+        else:
+            out = reducer.apply(self, offsets, starts, shifts, outlength)
 
         if mask:
             outmask = ak.index.Index8.empty(outlength, self._backend.nplike)
@@ -1157,6 +1208,10 @@ class NumpyArray(NumpyMeta, Content):
             )
         (nparray,) = maybe_materialize(self._raw(numpy))
 
+        if nparray.dtype.type is np.longdouble and nparray.dtype == np.float64:
+            # long double is the same as double on this platform
+            nparray = nparray.view(np.float64)
+
         if (
             np.issubdtype(nparray.dtype, np.datetime64)
             and nparray.dtype.name == "datetime64[D]"
@@ -1164,7 +1219,14 @@ class NumpyArray(NumpyMeta, Content):
             nparray = nparray.astype("timedelta64[D]").astype(np.int32)
             storage_type = pyarrow.date32()
         else:
-            storage_type = pyarrow.from_numpy_dtype(nparray.dtype)
+            try:
+                storage_type = pyarrow.from_numpy_dtype(nparray.dtype)
+            except pyarrow.ArrowNotImplementedError:
+                raise TypeError(
+                    f"Arrow has no type for {nparray.dtype.name} values. Convert "
+                    "them with ak.values_astype before converting the array to "
+                    "Arrow"
+                ) from None
 
         if issubclass(nparray.dtype.type, (bool, np.bool_)):
             nparray = numpy.packbits(nparray, bitorder="little")
@@ -1296,24 +1358,31 @@ class NumpyArray(NumpyMeta, Content):
                         backend=self._backend,
                     )._to_list(behavior, json_conversions)
 
-        out = self._data.tolist()
+        data = self._data
+        if json_conversions is not None and data.dtype.type is np.longdouble:
+            # The json module writes Python floats, which are doubles. A long
+            # double is written as the nearest double, which is infinite for a
+            # value beyond the range of double. The strings below are chosen
+            # from the converted values for that reason.
+            (data,) = maybe_materialize(data)
+            data = data.astype(np.float64)
+        out = data.tolist()
 
         if json_conversions is not None:
             nan_string = json_conversions["nan_string"]
             if nan_string is not None:
-                for i in self._backend.nplike.nonzero(
-                    self._backend.nplike.isnan(self._data)
-                )[0]:
+                is_nan = self._backend.nplike.isnan(data)
+                for i in self._backend.nplike.nonzero(is_nan)[0]:
                     out[i] = nan_string
 
             posinf_string = json_conversions["posinf_string"]
             if posinf_string is not None:
-                for i in self._backend.nplike.nonzero(self._data == np.inf)[0]:
+                for i in self._backend.nplike.nonzero(data == np.inf)[0]:
                     out[i] = posinf_string
 
             neginf_string = json_conversions["neginf_string"]
             if neginf_string is not None:
-                for i in self._backend.nplike.nonzero(self._data == -np.inf)[0]:
+                for i in self._backend.nplike.nonzero(data == -np.inf)[0]:
                     out[i] = neginf_string
 
         return out

@@ -123,6 +123,7 @@ type_to_dtype = {
     "uint64": "uint64",
     "float": "float32",
     "double": "float64",
+    "long double": "longdouble",
 }
 
 
@@ -137,7 +138,8 @@ def type_to_pytype(typename, special):
         typename = typename[:-2]
     if count != 0:
         special.append(type_to_dtype[typename])
-    return ("POINTER(" * count) + ("c_" + typename) + (")" * count)
+    # "long double" is `c_longdouble` in ctypes
+    return ("POINTER(" * count) + ("c_" + typename.replace(" ", "")) + (")" * count)
 
 
 def kernel_signatures_py(specification):
@@ -179,6 +181,7 @@ from ctypes import (
     c_uint64,
     c_float,
     c_double,
+    c_longdouble,
     c_char_p,
 )
 
@@ -196,6 +199,7 @@ from numpy import (
     uint64,
     float32,
     float64,
+    longdouble,
 )
 
 class ERROR(Structure):

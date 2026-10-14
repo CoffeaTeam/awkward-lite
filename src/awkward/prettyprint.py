@@ -313,12 +313,12 @@ class Formatter:
                 return self._formatters["int"]
             except KeyError:
                 return self._formatters.get("int_kind", str)
-        elif issubclass(cls, (np.float64, np.float32)):
+        elif issubclass(cls, (np.float64, np.float32, np.float16)):
             try:
                 return self._formatters["float"]
             except KeyError:
                 return self._formatters.get("float_kind", self._format_real)
-        elif hasattr(np, "float128") and issubclass(cls, np.float128):
+        elif issubclass(cls, np.longdouble):
             try:
                 return self._formatters["longfloat"]
             except KeyError:
@@ -328,7 +328,7 @@ class Formatter:
                 return self._formatters["complexfloat"]
             except KeyError:
                 return self._formatters.get("complex_kind", self._format_complex)
-        elif hasattr(np, "complex256") and issubclass(cls, np.complex256):
+        elif issubclass(cls, np.clongdouble):
             try:
                 return self._formatters["longcomplexfloat"]
             except KeyError:

@@ -294,7 +294,8 @@ def gettypename(spectype):
     typename = spectype.replace("List", "").replace("[", "").replace("]", "")
     if typename.endswith("_t"):
         typename = typename[:-2]
-    return typename
+    # "long double" is `longdouble` in both ctypes and NumPy
+    return typename.replace(" ", "")
 
 
 def genpykernels():

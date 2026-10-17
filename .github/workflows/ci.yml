@@ -15,22 +15,22 @@ concurrency:
 
 jobs:
   change-detection:
-    uses: ./.github/workflows/reusable-change-detection.yml
+    uses: $/.github/workflows/reusable-change-detection.yml
 
   tests:
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-tests)
-    uses: ./.github/workflows/reusable-test.yml
+    uses: $/.github/workflows/reusable-test.yml
 
   packaging-tests:
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.build-wheels)
-    uses: ./.github/workflows/reusable-packaging-test.yml
+    uses: $/.github/workflows/reusable-packaging-test.yml
 
   header-only-tests:
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-header-only-tests)
-    uses: ./.github/workflows/reusable-header-only-test.yml
+    uses: $/.github/workflows/reusable-header-only-test.yml
 
   pass:
     name: Check CI result

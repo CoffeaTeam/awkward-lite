@@ -2,11 +2,11 @@
 ![](docs-img/logo/logo-300px.png)
 <!-- end-logo -->
 
-[![Python 3.10‒3.14](https://img.shields.io/badge/python-3.10%E2%80%923.14-blue)](https://www.python.org)
+[![Python 3.10‒3.15](https://img.shields.io/badge/python-3.10%E2%80%923.15-blue)](https://www.python.org)
 [![BSD-3 Clause License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Build Test](https://github.com/CoffeaTeam/awkward-lite/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/CoffeaTeam/awkward-lite/actions/workflows/ci.yml)
 
-Awkward Array Lite is a minimal, CPU-only fork of [Awkward Array](https://github.com/scikit-hep/awkward). It is an independent project, not affiliated with or endorsed by the authors of Awkward Array or by Scikit-HEP.
+Awkward Array Lite is a minimal, CPU-only fork of [Awkward Array](https://github.com/scikit-hep/awkward) whose goal is experimentation with the most minimal version of Awkward Array to do physics analysis and exploration of the possibility of porting parts of the project into compiled code. Not to be used in production. It is an independent project, not affiliated with or endorsed by the authors of Awkward Array or by Scikit-HEP.
 
 Awkward Array is a library for **nested, variable-sized data**, including arbitrary-length lists, records, mixed types, and missing data, using **NumPy-like idioms**.
 

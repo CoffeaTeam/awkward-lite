@@ -37,6 +37,46 @@ def test_broadcast_scalar_branch(scalar):
         assert flat(result).dtype == expected.dtype
 
 
+_default_int = np.dtype(int).name
+
+
+@pytest.mark.parametrize(
+    ("x_dtype", "scalar", "expected"),
+    [
+        ("int8", 0, _default_int),  # Dynamically tracks "int64" on x64 / "int32" on x86
+        (
+            "int8",
+            300,
+            _default_int,
+        ),  # Dynamically tracks "int64" on x64 / "int32" on x86
+        ("float32", 1.5, "float64"),
+    ],
+)
+def test_scalar_branch_promotes_like_an_array(x_dtype, scalar, expected):
+    # NumPy 1.x promotes 0-d arrays by value, which must not leak into the result
+    left = ak.values_astype(x, x_dtype)
+    for result, tracer in [
+        (
+            ak.where(condition, left, scalar),
+            ak.where(
+                ak.to_backend(condition, "typetracer"),
+                ak.to_backend(left, "typetracer"),
+                scalar,
+            ),
+        ),
+        (
+            ak.where(condition, scalar, left),
+            ak.where(
+                ak.to_backend(condition, "typetracer"),
+                scalar,
+                ak.to_backend(left, "typetracer"),
+            ),
+        ),
+    ]:
+        assert flat(result).dtype == np.dtype(expected)
+        assert result.type == tracer.type
+
+
 @pytest.mark.parametrize(
     ("x_dtype", "y_dtype"),
     [("int8", "int64"), ("int32", "float32"), ("uint8", "float64"), ("bool", "int16")],

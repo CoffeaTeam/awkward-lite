@@ -18,9 +18,6 @@ def test_with_nep_50(backend):
     assert (array + typed_scalar).layout.dtype == np.dtype(np.uint64)
 
     # With NEP-50, we can ask NumPy to use value-less type resolution
-    warn_context = (
-        pytest.raises(OverflowError) if backend == "cpu" else contextlib.nullcontext()
-    )
-    with warn_context:
+    with pytest.raises(OverflowError) if backend == "cpu" else contextlib.nullcontext():
         untyped_scalar = 512
         assert (array + untyped_scalar).layout.dtype == np.dtype(np.uint8)

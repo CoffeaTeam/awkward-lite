@@ -36,7 +36,7 @@ jobs:
     - name: Setup uv
       uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
-    - uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
+    - uses: pypa/cibuildwheel@adba99c781d3746d38b3a09b1cf797965bcb7fe6 # v4.3.0
       env:
         CIBW_ARCHS_MACOS: universal2
         CIBW_ARCHS_WINDOWS: auto64
@@ -57,7 +57,7 @@ jobs:
     - name: Setup uv
       uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
-    - uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
+    - uses: pypa/cibuildwheel@adba99c781d3746d38b3a09b1cf797965bcb7fe6 # v4.3.0
       env:
         CIBW_PLATFORM: pyodide
         CIBW_BUILD: cp314-pyodide_wasm32

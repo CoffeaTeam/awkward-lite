@@ -16,7 +16,7 @@ import awkward as ak
         [b"one", b"two", b"three"],
     ),
 )
-def test_numpy2(iterable):
+def test_dunder_array(iterable):
     nparray = np.asarray(iterable)
     akarray = ak.highlevel.Array(nparray, check_valid=True)
     out = np.asarray(akarray)

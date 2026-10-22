@@ -26,6 +26,7 @@ repos:
   hooks:
   - id: cmake-format
     additional_dependencies: [pyyaml]
+    language_version: python3.14
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: f12be1ebaa5351c1fc76472de98db2c3446c8253  # frozen: v0.16.10

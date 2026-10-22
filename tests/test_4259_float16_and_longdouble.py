@@ -63,20 +63,15 @@ def test_sort_and_argsort(dtype):
     data = values(dtype)
     array = ak.from_regular(ak.Array(data))
 
-    # NumPy's float16 sort is wrong on 32-bit Windows with AVX-512
-    # (numpy/numpy#29808), so sort in float32, which holds every float16 value
-    reference = data.astype(np.float32) if dtype is np.float16 else data
-    expected = np.sort(reference, axis=1).astype(dtype)
-
     result = ak.to_numpy(ak.sort(array, axis=1))
     assert result.dtype == np.dtype(dtype)
-    assert np.array_equal(result, expected)
+    assert np.array_equal(result, np.sort(data, axis=1))
 
     result = ak.to_numpy(ak.sort(array, axis=1, ascending=False))
-    assert np.array_equal(result, expected[:, ::-1])
+    assert np.array_equal(result, np.sort(data, axis=1)[:, ::-1])
 
     result = ak.to_numpy(ak.argsort(array, axis=1, stable=True))
-    assert np.array_equal(result, np.argsort(reference, axis=1, kind="stable"))
+    assert np.array_equal(result, np.argsort(data, axis=1, kind="stable"))
 
 
 def test_float16_with_missing_values():

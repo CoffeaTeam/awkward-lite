@@ -319,9 +319,23 @@ mccabe.max-complexity = 100
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "numpy".msg = "Use `numpy = ak._nplikes.Numpy.instance()` instead"
 
+[dependency-groups]
+dev = [
+    "numba; sys_platform != 'win32'",
+    "numexpr",
+    "pandas; sys_platform != 'win32'",
+    "pyarrow; sys_platform != 'win32'",
+    "pytest>=6",
+    "pytest-xdist",
+    "PyYAML",
+]
+
 [tool.uv]
 exclude-newer = "7 days"
 exclude-newer-package = { awkward_cpp = false }
 
+[tool.uv.workspace]
+members = ["awkward-cpp"]
+
 [tool.uv.sources]
-awkward_cpp = { path = "awkward-cpp" }
+awkward_cpp = { workspace = true }

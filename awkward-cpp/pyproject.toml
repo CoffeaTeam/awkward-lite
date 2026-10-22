@@ -80,6 +80,20 @@ cmake.version = ">=3.29"
 if.from-sdist = false
 build.requires = ["pyyaml", "numpy"]
 
+# Rebuild the editable workspace install when the C++ sources or the kernel
+# spec change, not only when pyproject.toml changes.
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "CMakeLists.txt" },
+    { file = "include/**/*.h" },
+    { file = "src/**/*.cpp" },
+    { file = "src/**/*.py" },
+    { file = "../header-only/**/*.h" },
+    { file = "../dev/*.py" },
+    { file = "../kernel-specification.yml" },
+    { file = "../kernel-test-data.json" },
+]
 
 [tool.cibuildwheel]
 build-frontend = "build[uv]"

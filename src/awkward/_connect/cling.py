@@ -592,6 +592,12 @@ class NumpyArrayGenerator(Generator, ak._lookup.NumpyLookup):
         return f"NumpyArray_{self.primitive}_{self.class_type_suffix((self, self.flatlist_as_rvec))}"
 
     def value_type(self):
+        if self.primitive == "float16":
+            raise TypeError(
+                "C++ has no half precision type, so arrays of float16 cannot be "
+                "used from C++. Convert them with ak.values_astype(array, "
+                "np.float32) first"
+            )
         return {
             "bool": "bool",
             "int8": "int8_t",
@@ -604,8 +610,10 @@ class NumpyArrayGenerator(Generator, ak._lookup.NumpyLookup):
             "uint64": "uint64_t",
             "float32": "float",
             "float64": "double",
+            "float128": "long double",
             "complex64": "std::complex<float>",
             "complex128": "std::complex<double>",
+            "complex256": "std::complex<long double>",
             "datetime64": "std::time_point",
             "timedelta64": "std::duration",
         }[self.primitive]

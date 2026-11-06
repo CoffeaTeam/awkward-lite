@@ -58,7 +58,9 @@ def test_reducers(dtype, ak_reducer, np_reducer):
         assert np.array_equal(result, expected)
 
 
-@pytest.mark.parametrize("dtype", [np.float16, np.longdouble])
+@pytest.mark.parametrize(
+    "dtype", [np.float16, np.longdouble, np.complex64, np.complex128, np.clongdouble]
+)
 def test_sort_and_argsort(dtype):
     data = values(dtype)
     array = ak.from_regular(ak.Array(data))
@@ -173,15 +175,58 @@ def test_longdouble_min_and_max_with_initial():
 
 
 @pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
-def test_complex_numbers_cannot_be_sorted(dtype):
-    array = ak.from_regular(ak.Array(values(dtype)))
+def test_sort_complex_numbers_with_nan(dtype):
+    nan = np.nan
+    data = np.array(
+        [
+            complex(1, nan),
+            complex(nan, 2),
+            1 + 1j,
+            complex(nan, nan),
+            -1 + 0j,
+            complex(nan, 1),
+        ],
+        dtype=dtype,
+    )
+    array = ak.Array([data])
 
-    with pytest.raises(ValueError, match=r"cannot sort \(ak\.sort\) values of"):
-        ak.sort(array, axis=1)
-    with pytest.raises(ValueError, match=r"cannot sort \(ak\.argsort\) values of"):
-        ak.argsort(array, axis=1)
-    with pytest.raises(ValueError, match="cannot find the unique values of"):
-        ak._do.unique(array.layout, axis=-1)
+    # by real part and then by imaginary part, with NaN first in either
+    # direction, as for real numbers
+    assert ak.argsort(array, stable=True).to_list() == [[3, 5, 1, 4, 0, 2]]
+    assert ak.argsort(array, ascending=False, stable=True).to_list() == [
+        [3, 1, 5, 0, 2, 4]
+    ]
+    result = ak.to_numpy(ak.sort(array))[0]
+    assert np.array_equal(result, data[[3, 5, 1, 4, 0, 2]], equal_nan=True)
+
+    # without an imaginary part, complex numbers sort like their real parts
+    reals = np.array([nan, 1, 0, nan, -1, 0])
+    for ascending in (True, False):
+        assert (
+            ak.argsort(
+                ak.Array([reals.astype(dtype)]), ascending=ascending, stable=True
+            ).to_list()
+            == ak.argsort(ak.Array([reals]), ascending=ascending, stable=True).to_list()
+        )
+
+
+@pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
+def test_sort_complex_numbers_typetracer(dtype):
+    array = ak.from_regular(ak.Array(values(dtype)))
+    tracer = ak.to_backend(array, "typetracer")
+
+    for function in (ak.sort, ak.argsort):
+        assert function(tracer, axis=1).type == function(array, axis=1).type
+
+
+@pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
+def test_unique_complex_numbers_along_an_axis(dtype):
+    data = np.array([2 + 1j, 1 + 2j, 2 + 1j, 1 - 1j, 1 + 2j, 2 + 1j], dtype=dtype)
+    array = ak.unflatten(ak.Array(data), [3, 0, 3])
+
+    result = ak.Array(ak._do.unique(array.layout, axis=-1))
+    assert result.layout.content.dtype == np.dtype(dtype)
+    assert result.to_list() == [[1 + 2j, 2 + 1j], [], [1 - 1j, 1 + 2j, 2 + 1j]]
 
 
 @pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
@@ -204,8 +249,14 @@ def test_unique_date_times():
     result = ak.to_numpy(ak._do.unique(array.layout, axis=None))
     assert np.array_equal(result, np.unique(data))
 
-    with pytest.raises(ValueError, match="cannot find the unique values of"):
-        ak._do.unique(ak.unflatten(array, [2, 1]).layout, axis=-1)
+    result = ak._do.unique(ak.unflatten(array, [2, 1]).layout, axis=-1)
+    assert result.content.dtype == data.dtype
+    assert ak.to_list(result) == [[data[1], data[0]], [data[2]]]
+
+    differences = data - data[1]
+    array = ak.unflatten(ak.Array(differences), [2, 1])
+    result = ak._do.unique(array.layout, axis=-1)
+    assert ak.to_list(result) == [[differences[1], differences[0]], [differences[2]]]
 
 
 @pytest.mark.parametrize("dtype", [np.float16, np.float32, np.float64, np.longdouble])

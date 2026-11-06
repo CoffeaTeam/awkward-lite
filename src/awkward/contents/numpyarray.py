@@ -614,6 +614,16 @@ class NumpyArray(NumpyMeta, Content):
         # float16 value, so they are given float32 data.
         return self._numbers_to_type("float32", False)
 
+    def _sorting_kernel_dtype(self):
+        # The sorting and unique kernels are given date-times and time
+        # differences as int64 and complex numbers as pairs of real numbers.
+        if self.dtype.kind == "c":
+            return np.finfo(self.dtype).dtype
+        elif self.dtype.kind.upper() == "M":
+            return np.dtype(np.int64)
+        else:
+            return self.dtype
+
     def _subranges_equal(self, starts, stops, length, sorted=True):
         if not self.is_contiguous:
             return self.to_contiguous()._subranges_equal(starts, stops, length, sorted)
@@ -771,18 +781,11 @@ class NumpyArray(NumpyMeta, Content):
             return out._numbers_to_type("float16", False)
 
         elif self.dtype.kind == "c" and negaxis is None:
-            # the kernels cannot sort complex numbers, NumPy can
+            # unique_values sorts them, so they need no sorting kernel first
             return ak.contents.NumpyArray(
                 self._backend.nplike.unique_values(self.to_contiguous()._data),
                 parameters=None,
                 backend=self._backend,
-            )
-
-        elif self.dtype.kind == "c" or (
-            negaxis is not None and self.dtype.kind.upper() == "M"
-        ):
-            raise ValueError(
-                f"cannot find the unique values of {self.dtype!r} along an axis"
             )
 
         elif negaxis is None:
@@ -851,16 +854,18 @@ class NumpyArray(NumpyMeta, Content):
             compact_offsets_length = compact_offsets.length
 
             out = nplike.empty(self.length, dtype=self.dtype)
+            dtype = self._sorting_kernel_dtype()
+            is_complex = self.dtype.kind == "c"
             assert compact_offsets.nplike is self._backend.nplike
             self._backend.maybe_kernel_error(
                 self._backend[
-                    "awkward_sort",
-                    out.dtype.type,
-                    self._data.dtype.type,
+                    "awkward_sort_complex" if is_complex else "awkward_sort",
+                    dtype.type,
+                    dtype.type,
                     compact_offsets.dtype.type,
                 ](
-                    out,
-                    self._data,
+                    out.view(dtype),
+                    self._data.view(dtype),
                     self.shape[0],
                     compact_offsets.data,
                     compact_offsets_length,
@@ -877,33 +882,24 @@ class NumpyArray(NumpyMeta, Content):
                 and nextoffsets.nplike is self._backend.nplike
             )
             if out.dtype == np.bool_:
-                self._backend.maybe_kernel_error(
-                    self._backend[
-                        "awkward_unique_ranges_bool",
-                        out.dtype.type,
-                        compact_offsets.dtype.type,
-                        nextoffsets.dtype.type,
-                    ](
-                        out,
-                        compact_offsets.data,
-                        compact_offsets_length,
-                        nextoffsets.data,
-                    )
-                )
+                unique_ranges = "awkward_unique_ranges_bool"
+            elif is_complex:
+                unique_ranges = "awkward_unique_ranges_complex"
             else:
-                self._backend.maybe_kernel_error(
-                    self._backend[
-                        "awkward_unique_ranges",
-                        out.dtype.type,
-                        compact_offsets.dtype.type,
-                        nextoffsets.dtype.type,
-                    ](
-                        out,
-                        compact_offsets.data,
-                        compact_offsets_length,
-                        nextoffsets.data,
-                    )
+                unique_ranges = "awkward_unique_ranges"
+            self._backend.maybe_kernel_error(
+                self._backend[
+                    unique_ranges,
+                    dtype.type,
+                    compact_offsets.dtype.type,
+                    nextoffsets.dtype.type,
+                ](
+                    out.view(dtype),
+                    compact_offsets.data,
+                    compact_offsets_length,
+                    nextoffsets.data,
                 )
+            )
 
             outoffsets = ak.index.Index64.empty(starts.length + 1, self._backend.nplike)
             assert (
@@ -945,16 +941,10 @@ class NumpyArray(NumpyMeta, Content):
             return self._float16_as_float32()._argsort_next(
                 negaxis, starts, shifts, offsets, outlength, ascending, stable
             )
-        elif self.dtype.kind == "c":
-            raise ValueError(f"cannot sort (ak.argsort) values of {self.dtype!r}")
         else:
             offsets_length = offsets.length
 
-            dtype = (
-                np.dtype(np.int64)
-                if self._data.dtype.kind.upper() == "M"
-                else self._data.dtype
-            )
+            dtype = self._sorting_kernel_dtype()
             nextcarry = ak.index.Index64.empty(self.length, self._backend.nplike)
             assert (
                 nextcarry.nplike is self._backend.nplike
@@ -962,13 +952,15 @@ class NumpyArray(NumpyMeta, Content):
             )
             self._backend.maybe_kernel_error(
                 self._backend[
-                    "awkward_argsort",
+                    "awkward_argsort_complex"
+                    if self.dtype.kind == "c"
+                    else "awkward_argsort",
                     nextcarry.dtype.type,
                     dtype.type,
                     offsets.dtype.type,
                 ](
                     nextcarry.data,
-                    self._data,
+                    self._data.view(dtype),
                     self.length,
                     offsets.data,
                     offsets_length,
@@ -1039,28 +1031,24 @@ class NumpyArray(NumpyMeta, Content):
                 negaxis, starts, offsets, outlength, ascending, stable
             )
             return out._numbers_to_type("float16", False)
-        elif self.dtype.kind == "c":
-            raise ValueError(f"cannot sort (ak.sort) values of {self.dtype!r}")
 
         else:
             offsets_length = offsets.length
 
-            dtype = (
-                np.dtype(np.int64)
-                if self._data.dtype.kind.upper() == "M"
-                else self._data.dtype
-            )
-            out = self._backend.nplike.empty(self.length, dtype=dtype)
+            dtype = self._sorting_kernel_dtype()
+            out = self._backend.nplike.empty(self.length, dtype=self.dtype)
             assert offsets.nplike is self._backend.nplike
             self._backend.maybe_kernel_error(
                 self._backend[
-                    "awkward_sort",
+                    "awkward_sort_complex"
+                    if self.dtype.kind == "c"
+                    else "awkward_sort",
                     dtype.type,
                     dtype.type,
                     offsets.dtype.type,
                 ](
-                    out,
-                    self._data,
+                    out.view(dtype),
+                    self._data.view(dtype),
                     self.shape[0],
                     offsets.data,
                     offsets_length,
@@ -1069,7 +1057,7 @@ class NumpyArray(NumpyMeta, Content):
                 )
             )
             return ak.contents.NumpyArray(
-                self._backend.nplike.asarray(out, dtype=self.dtype),
+                out,
                 parameters=None,
                 backend=self._backend,
             )

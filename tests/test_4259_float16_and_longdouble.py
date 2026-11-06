@@ -271,6 +271,23 @@ def test_unique_along_an_axis_with_nan(dtype):
     assert np.array_equal(ak.to_numpy(ak.flatten(result)), expected, equal_nan=True)
 
 
+@pytest.mark.parametrize(
+    "dtype", [np.float16, np.float64, np.complex64, np.clongdouble, "datetime64[s]"]
+)
+def test_unique_along_an_axis_of_a_strided_array(dtype):
+    # every other value of [3, 0, 1, 0, 3, 0, 2, 0, 2, 0] in lists of 3 and 2
+    data = np.array([3, 0, 1, 0, 3, 0, 2, 0, 2, 0]).astype(dtype)
+    layout = ak.contents.ListOffsetArray(
+        ak.index.Index64(np.array([0, 3, 5])), ak.contents.NumpyArray(data[::2])
+    )
+    assert not layout.content.is_contiguous
+
+    result = ak.Array(ak._do.unique(layout, axis=-1))
+    assert ak.num(result, axis=1).to_list() == [2, 1]
+    expected = np.array([1, 3, 2]).astype(dtype)
+    assert np.array_equal(ak.to_numpy(ak.flatten(result)), expected)
+
+
 @pytest.mark.parametrize("dtype", [np.float16, np.longdouble, np.clongdouble])
 def test_type_strings_can_be_parsed(dtype):
     array = ak.from_regular(ak.Array(values(dtype)))

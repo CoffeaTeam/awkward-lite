@@ -835,6 +835,13 @@ class NumpyArray(NumpyMeta, Content):
                 offsets,
                 outlength,
             )
+        elif not self.is_contiguous:
+            return self.to_contiguous()._unique(
+                negaxis,
+                starts,
+                offsets,
+                outlength,
+            )
         else:
             # The incoming `offsets` is the per-bin offsets-rep of length
             # outlength + 1, possibly with empty bins represented as

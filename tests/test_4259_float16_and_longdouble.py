@@ -229,6 +229,23 @@ def test_unique_complex_numbers_along_an_axis(dtype):
     assert result.to_list() == [[1 + 2j, 2 + 1j], [], [1 - 1j, 1 + 2j, 2 + 1j]]
 
 
+@pytest.mark.parametrize(
+    "dtype", [np.float16, np.longdouble, np.complex64, np.complex128, np.clongdouble]
+)
+def test_nan_to_none(dtype):
+    data = np.array([1, np.nan, 2, np.nan], dtype=dtype)
+    if np.dtype(dtype).kind == "c":
+        # a NaN in either part makes a complex number NaN
+        data[3] = complex(1, np.nan)
+
+    result = ak.nan_to_none(ak.Array(data))
+    assert ak.is_none(result).to_list() == [False, True, False, True]
+    assert result.layout.content.dtype == np.dtype(dtype)
+
+    masked = ak.mask(ak.Array(data), [True, True, False, True])
+    assert ak.is_none(ak.nan_to_none(masked)).to_list() == [False, True, True, True]
+
+
 @pytest.mark.parametrize("dtype", [np.complex64, np.complex128, np.clongdouble])
 def test_unique_complex_numbers_without_an_axis(dtype):
     data = np.array([2 + 1j, 1 + 2j, 2 + 1j, 1 - 1j, 1 + 2j], dtype=dtype)

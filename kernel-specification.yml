@@ -5720,7 +5720,8 @@ kernels:
           tooffsets[i] = m
           toptr[m] = toptr[fromoffsets[i]]
           m += 1
-          for k in range(fromoffsets[i], fromoffsets[i + 1]):
+          # start after the first value, which is not equal to itself if NaN
+          for k in range(fromoffsets[i] + 1, fromoffsets[i + 1]):
             if (toptr[m - 1] != toptr[k]):
               toptr[m] = toptr[k]
               m += 1

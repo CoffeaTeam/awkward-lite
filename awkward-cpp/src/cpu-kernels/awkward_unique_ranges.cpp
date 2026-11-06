@@ -14,7 +14,8 @@ ERROR awkward_unique_ranges(
   for (int64_t i = 0;  i < offsetslength - 1;  i++) {
     tooffsets[i] = m;
     toptr[m++] = toptr[fromoffsets[i]];
-    for (int64_t k = fromoffsets[i]; k < fromoffsets[i + 1]; k++) {
+    // start after the first value, which is not equal to itself if NaN
+    for (int64_t k = fromoffsets[i] + 1; k < fromoffsets[i + 1]; k++) {
       if (toptr[m - 1] != toptr[k]) {
         toptr[m++] = toptr[k];
       }

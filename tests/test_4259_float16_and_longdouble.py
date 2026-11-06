@@ -208,6 +208,18 @@ def test_unique_date_times():
         ak._do.unique(ak.unflatten(array, [2, 1]).layout, axis=-1)
 
 
+@pytest.mark.parametrize("dtype", [np.float16, np.float32, np.float64, np.longdouble])
+def test_unique_along_an_axis_with_nan(dtype):
+    data = np.array([np.nan, 1, np.nan, 1, 2, np.nan], dtype=dtype)
+    array = ak.unflatten(ak.Array(data), [4, 2])
+
+    # NaN is not equal to itself, so each one is kept
+    result = ak.Array(ak._do.unique(array.layout, axis=-1))
+    assert ak.num(result, axis=1).to_list() == [3, 2]
+    expected = np.array([np.nan, np.nan, 1, np.nan, 2], dtype=dtype)
+    assert np.array_equal(ak.to_numpy(ak.flatten(result)), expected, equal_nan=True)
+
+
 @pytest.mark.parametrize("dtype", [np.float16, np.longdouble, np.clongdouble])
 def test_type_strings_can_be_parsed(dtype):
     array = ak.from_regular(ak.Array(values(dtype)))

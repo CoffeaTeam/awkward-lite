@@ -123,6 +123,43 @@ def test_setattr_of_later_mixin_is_called(wrapper):
     assert thing._foo == 1
 
 
+@pytest.mark.parametrize("wrapper", [ak.Array, ak.Record])
+def test_state_property_of_subclass_is_used(wrapper):
+    class Stored(wrapper):
+        @property
+        def _layout(self):
+            return self.__dict__["_stored_layout"]
+
+        @_layout.setter
+        def _layout(self, value):
+            self.__dict__["_stored_layout"] = value
+
+    thing = _make(wrapper, Stored)
+    assert type(thing) is Stored
+    assert "_layout" not in vars(thing)
+    assert thing.layout is vars(thing)["_stored_layout"]
+
+
+@pytest.mark.parametrize("wrapper", [ak.Array, ak.Record])
+def test_doc_is_set_after_state(wrapper):
+    class Documented(wrapper):
+        def __setattr__(self, name, value):
+            if name == "__doc__":
+                self.__dict__["_doc_fields"] = self.layout.fields
+            super().__setattr__(name, value)
+
+    layout = ak.with_parameter(
+        ak.with_name([{"x": 1}], "custom"), "__doc__", "documented", highlevel=False
+    )
+    if wrapper is ak.Array:
+        thing = Documented(layout, behavior={("*", "custom"): Documented})
+    else:
+        thing = Documented(layout[0], behavior={"custom": Documented})
+    assert type(thing) is Documented
+    assert thing.__doc__ == "documented"
+    assert thing._doc_fields == ["x"]
+
+
 def test_numbaview_reset_on_new_layout():
     array = ak.Array([[1, 2, 3], [], [4, 5]])
     assert array._numbaview is None
@@ -164,6 +201,21 @@ def test_record_roundtrip(roundtrip, point_behavior):
     assert isinstance(result, PointRecord)
     assert result.to_list() == {"x": 1, "y": 2}
     assert result._numbaview is None
+
+
+def test_record_awkward1_setstate(point_behavior):
+    # awkward 1 pickled a record as (form, length, container, behavior, at)
+    array = ak.Array([{"x": 1, "y": 2}, {"x": 3, "y": 4}], with_name="point")
+    form, length, container = ak.to_buffers(
+        array, buffer_key="{form_key}-{attribute}", form_key="node{id}"
+    )
+
+    record = ak.Record.__new__(ak.Record)
+    record.__setstate__((form.to_dict(), length, container, None, 1))
+    assert isinstance(record, PointRecord)
+    assert record.to_list() == {"x": 3, "y": 4}
+    assert record._attrs is None
+    assert record._numbaview is None
 
 
 @pytest.mark.parametrize("wrapper", [ak.Array, ak.Record])

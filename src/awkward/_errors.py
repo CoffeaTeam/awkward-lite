@@ -23,10 +23,23 @@ P = ParamSpec("P")
 class ErrorContext:
     # Any other threads should get a completely independent _slate.
     _slate = threading.local()
+    _frozen = False
 
     @classmethod
     def primary(cls):
         return cls._slate.__dict__.get("__primary_context__")
+
+    @classmethod
+    def frozen_primary(cls):
+        """The primary context, frozen so that it can outlive the call."""
+        context = cls.primary()
+        if context is not None and not context._frozen:
+            context.freeze()
+            context._frozen = True
+        return context
+
+    def freeze(self) -> None:
+        """Format the note now and drop the references to the raw arguments."""
 
     def __enter__(self):
         # Make it strictly non-reenterant. Only one ErrorContext (per thread) is primary.
@@ -145,6 +158,10 @@ class OperationErrorContext(ErrorContext):
         self._raw_args = args
         self._raw_kwargs = kwargs
 
+    def freeze(self) -> None:
+        _ = self.note
+        self._raw_args, self._raw_kwargs = (), {}
+
     def _format_args(self, arguments: Iterable) -> list[str]:
         string_arguments = []
         for value in arguments:
@@ -199,6 +216,10 @@ class SlicingErrorContext(ErrorContext):
     def __init__(self, array, where):
         self._raw_array = array
         self._raw_where = where
+
+    def freeze(self) -> None:
+        _ = self.note
+        self._raw_array = self._raw_where = None
 
     @cached_property
     def array(self) -> str:

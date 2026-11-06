@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import gc
+import weakref
+
 import pytest
 
 import awkward as ak
-from awkward._errors import OperationErrorContext, SlicingErrorContext
+from awkward._errors import ErrorContext, OperationErrorContext, SlicingErrorContext
 from awkward.errors import AxisError
 
 
@@ -49,7 +52,58 @@ def test_lazy_path_does_not_format_when_nothing_is_raised(monkeypatch):
     assert len(calls) == 1
 
 
-def test_contexts_stay_lazy():
+def test_frozen_operation_context_drops_raw_arguments():
+    array = ak.Array([[1, 2, 3], [], [4, 5]])
+    array_ref = weakref.ref(array)
+    context = OperationErrorContext("ak.num", (array,), {"axis": 1})
+    with context:
+        assert ErrorContext.frozen_primary() is context
+        assert ErrorContext.frozen_primary() is context
+
+    assert context._raw_args == ()
+    assert context._raw_kwargs == {}
+    del array
+    gc.collect()
+    assert array_ref() is None
+    assert "<Array [[1, 2, 3], [], [4, 5]] type='3 * var * int64'>" in context.note
+    assert "axis = 1" in context.note
+
+
+def test_frozen_slicing_context_drops_raw_arguments():
+    array = ak.Array([[1, 2, 3], [], [4, 5]])
+    context = SlicingErrorContext(array, slice(1, None))
+    with context:
+        assert ErrorContext.frozen_primary() is context
+
+    assert context._raw_array is None
+    assert context._raw_where is None
+    assert "<Array [[1, 2, 3], [], [4, 5]] type='3 * var * int64'>" in context.note
+    assert "1:" in context.note
+
+
+def test_frozen_primary_freezes_once(monkeypatch):
+    calls = []
+    freeze = OperationErrorContext.freeze
+
+    def spy(self):
+        calls.append(self)
+        freeze(self)
+
+    monkeypatch.setattr(OperationErrorContext, "freeze", spy)
+
+    context = OperationErrorContext("ak.num", (ak.Array([1, 2, 3]),), {})
+    with context:
+        for _ in range(4):
+            assert ErrorContext.frozen_primary() is context
+
+    assert calls == [context]
+
+
+def test_frozen_primary_without_context():
+    assert ErrorContext.frozen_primary() is None
+
+
+def test_unfrozen_contexts_stay_lazy():
     array = ak.Array([[1, 2, 3], [], [4, 5]])
 
     operation = OperationErrorContext("ak.num", (array,), {"axis": 1})

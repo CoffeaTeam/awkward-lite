@@ -32,7 +32,6 @@ from awkward.operations.ak_firsts import *
 from awkward.operations.ak_flatten import *
 from awkward.operations.ak_from_arrow import *
 from awkward.operations.ak_from_arrow_schema import *
-from awkward.operations.ak_from_avro_file import *
 from awkward.operations.ak_from_buffers import *
 from awkward.operations.ak_from_categorical import *
 from awkward.operations.ak_from_cudf import *

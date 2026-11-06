@@ -172,6 +172,9 @@ builder_fromiter(ak::ArrayBuilder& self, const py::handle& obj) {
   else if (py::isinstance(obj, py::module::import("numpy").attr("floating"))) {
     self.real(obj.cast<double>());
   }
+  else if (py::isinstance(obj, py::module::import("numpy").attr("complexfloating"))) {
+    self.complex(obj.cast<std::complex<double>>());
+  }
   else if (py::hasattr(obj, "to_list")) {
     builder_fromiter(self, obj.attr("to_list")());
   }

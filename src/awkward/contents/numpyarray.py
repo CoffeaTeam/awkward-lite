@@ -609,9 +609,28 @@ class NumpyArray(NumpyMeta, Content):
     def is_contiguous(self) -> bool:
         return self._backend.nplike.is_c_contiguous(self._data)
 
+    def _float16_as_float32(self):
+        # The kernels have no half-precision versions. float32 holds every
+        # float16 value, so they are given float32 data.
+        return self._numbers_to_type("float32", False)
+
+    def _sorting_kernel_dtype(self):
+        # The sorting and unique kernels are given date-times and time
+        # differences as int64 and complex numbers as pairs of real numbers.
+        if self.dtype.kind == "c":
+            return np.finfo(self.dtype).dtype
+        elif self.dtype.kind.upper() == "M":
+            return np.dtype(np.int64)
+        else:
+            return self.dtype
+
     def _subranges_equal(self, starts, stops, length, sorted=True):
         if not self.is_contiguous:
             return self.to_contiguous()._subranges_equal(starts, stops, length, sorted)
+        elif self.dtype == np.float16:
+            return self._float16_as_float32()._subranges_equal(
+                starts, stops, length, sorted
+            )
 
         is_equal = self._backend.nplike.zeros(1, dtype=np.bool_)
 
@@ -755,6 +774,20 @@ class NumpyArray(NumpyMeta, Content):
         elif len(self.shape) == 0:
             return self
 
+        elif self.dtype == np.float16:
+            out = self._float16_as_float32()._unique(
+                negaxis, starts, offsets, outlength
+            )
+            return out._numbers_to_type("float16", False)
+
+        elif self.dtype.kind == "c" and negaxis is None:
+            # unique_values sorts them, so they need no sorting kernel first
+            return ak.contents.NumpyArray(
+                self._backend.nplike.unique_values(self.to_contiguous()._data),
+                parameters=None,
+                backend=self._backend,
+            )
+
         elif negaxis is None:
             contiguous_self = self.to_contiguous()
 
@@ -802,6 +835,13 @@ class NumpyArray(NumpyMeta, Content):
                 offsets,
                 outlength,
             )
+        elif not self.is_contiguous:
+            return self.to_contiguous()._unique(
+                negaxis,
+                starts,
+                offsets,
+                outlength,
+            )
         else:
             # The incoming `offsets` is the per-bin offsets-rep of length
             # outlength + 1, possibly with empty bins represented as
@@ -821,16 +861,18 @@ class NumpyArray(NumpyMeta, Content):
             compact_offsets_length = compact_offsets.length
 
             out = nplike.empty(self.length, dtype=self.dtype)
+            dtype = self._sorting_kernel_dtype()
+            is_complex = self.dtype.kind == "c"
             assert compact_offsets.nplike is self._backend.nplike
             self._backend.maybe_kernel_error(
                 self._backend[
-                    "awkward_sort",
-                    out.dtype.type,
-                    self._data.dtype.type,
+                    "awkward_sort_complex" if is_complex else "awkward_sort",
+                    dtype.type,
+                    dtype.type,
                     compact_offsets.dtype.type,
                 ](
-                    out,
-                    self._data,
+                    out.view(dtype),
+                    self._data.view(dtype),
                     self.shape[0],
                     compact_offsets.data,
                     compact_offsets_length,
@@ -847,33 +889,24 @@ class NumpyArray(NumpyMeta, Content):
                 and nextoffsets.nplike is self._backend.nplike
             )
             if out.dtype == np.bool_:
-                self._backend.maybe_kernel_error(
-                    self._backend[
-                        "awkward_unique_ranges_bool",
-                        out.dtype.type,
-                        compact_offsets.dtype.type,
-                        nextoffsets.dtype.type,
-                    ](
-                        out,
-                        compact_offsets.data,
-                        compact_offsets_length,
-                        nextoffsets.data,
-                    )
-                )
+                unique_ranges = "awkward_unique_ranges_bool"
+            elif is_complex:
+                unique_ranges = "awkward_unique_ranges_complex"
             else:
-                self._backend.maybe_kernel_error(
-                    self._backend[
-                        "awkward_unique_ranges",
-                        out.dtype.type,
-                        compact_offsets.dtype.type,
-                        nextoffsets.dtype.type,
-                    ](
-                        out,
-                        compact_offsets.data,
-                        compact_offsets_length,
-                        nextoffsets.data,
-                    )
+                unique_ranges = "awkward_unique_ranges"
+            self._backend.maybe_kernel_error(
+                self._backend[
+                    unique_ranges,
+                    dtype.type,
+                    compact_offsets.dtype.type,
+                    nextoffsets.dtype.type,
+                ](
+                    out.view(dtype),
+                    compact_offsets.data,
+                    compact_offsets_length,
+                    nextoffsets.data,
                 )
+            )
 
             outoffsets = ak.index.Index64.empty(starts.length + 1, self._backend.nplike)
             assert (
@@ -911,14 +944,14 @@ class NumpyArray(NumpyMeta, Content):
             return self.to_contiguous()._argsort_next(
                 negaxis, starts, shifts, offsets, outlength, ascending, stable
             )
+        elif self.dtype == np.float16:
+            return self._float16_as_float32()._argsort_next(
+                negaxis, starts, shifts, offsets, outlength, ascending, stable
+            )
         else:
             offsets_length = offsets.length
 
-            dtype = (
-                np.dtype(np.int64)
-                if self._data.dtype.kind.upper() == "M"
-                else self._data.dtype
-            )
+            dtype = self._sorting_kernel_dtype()
             nextcarry = ak.index.Index64.empty(self.length, self._backend.nplike)
             assert (
                 nextcarry.nplike is self._backend.nplike
@@ -926,13 +959,15 @@ class NumpyArray(NumpyMeta, Content):
             )
             self._backend.maybe_kernel_error(
                 self._backend[
-                    "awkward_argsort",
+                    "awkward_argsort_complex"
+                    if self.dtype.kind == "c"
+                    else "awkward_argsort",
                     nextcarry.dtype.type,
                     dtype.type,
                     offsets.dtype.type,
                 ](
                     nextcarry.data,
-                    self._data,
+                    self._data.view(dtype),
                     self.length,
                     offsets.data,
                     offsets_length,
@@ -998,26 +1033,29 @@ class NumpyArray(NumpyMeta, Content):
             return self.to_contiguous()._sort_next(
                 negaxis, starts, offsets, outlength, ascending, stable
             )
+        elif self.dtype == np.float16:
+            out = self._float16_as_float32()._sort_next(
+                negaxis, starts, offsets, outlength, ascending, stable
+            )
+            return out._numbers_to_type("float16", False)
 
         else:
             offsets_length = offsets.length
 
-            dtype = (
-                np.dtype(np.int64)
-                if self._data.dtype.kind.upper() == "M"
-                else self._data.dtype
-            )
-            out = self._backend.nplike.empty(self.length, dtype=dtype)
+            dtype = self._sorting_kernel_dtype()
+            out = self._backend.nplike.empty(self.length, dtype=self.dtype)
             assert offsets.nplike is self._backend.nplike
             self._backend.maybe_kernel_error(
                 self._backend[
-                    "awkward_sort",
+                    "awkward_sort_complex"
+                    if self.dtype.kind == "c"
+                    else "awkward_sort",
                     dtype.type,
                     dtype.type,
                     offsets.dtype.type,
                 ](
-                    out,
-                    self._data,
+                    out.view(dtype),
+                    self._data.view(dtype),
                     self.shape[0],
                     offsets.data,
                     offsets_length,
@@ -1026,7 +1064,7 @@ class NumpyArray(NumpyMeta, Content):
                 )
             )
             return ak.contents.NumpyArray(
-                self._backend.nplike.asarray(out, dtype=self.dtype),
+                out,
                 parameters=None,
                 backend=self._backend,
             )
@@ -1086,7 +1124,15 @@ class NumpyArray(NumpyMeta, Content):
         # No more `parents_to_offsets_aligned` round-trip — `offsets` is the
         # bin descriptor we receive directly.
 
-        out = reducer.apply(self, offsets, starts, shifts, outlength)
+        if self.dtype == np.float16:
+            out = reducer.apply(
+                self._float16_as_float32(), offsets, starts, shifts, outlength
+            )
+            # a reducer that returns the type of its input returns float16
+            if out.dtype == np.float32:
+                out = out._numbers_to_type("float16", False)
+        else:
+            out = reducer.apply(self, offsets, starts, shifts, outlength)
 
         if mask:
             outmask = ak.index.Index8.empty(outlength, self._backend.nplike)
@@ -1157,6 +1203,10 @@ class NumpyArray(NumpyMeta, Content):
             )
         (nparray,) = maybe_materialize(self._raw(numpy))
 
+        if nparray.dtype.type is np.longdouble and nparray.dtype == np.float64:
+            # long double is the same as double on this platform
+            nparray = nparray.view(np.float64)
+
         if (
             np.issubdtype(nparray.dtype, np.datetime64)
             and nparray.dtype.name == "datetime64[D]"
@@ -1164,7 +1214,14 @@ class NumpyArray(NumpyMeta, Content):
             nparray = nparray.astype("timedelta64[D]").astype(np.int32)
             storage_type = pyarrow.date32()
         else:
-            storage_type = pyarrow.from_numpy_dtype(nparray.dtype)
+            try:
+                storage_type = pyarrow.from_numpy_dtype(nparray.dtype)
+            except pyarrow.ArrowNotImplementedError:
+                raise TypeError(
+                    f"Arrow has no type for {nparray.dtype.name} values. Convert "
+                    "them with ak.values_astype before converting the array to "
+                    "Arrow"
+                ) from None
 
         if issubclass(nparray.dtype.type, (bool, np.bool_)):
             nparray = numpy.packbits(nparray, bitorder="little")
@@ -1296,24 +1353,31 @@ class NumpyArray(NumpyMeta, Content):
                         backend=self._backend,
                     )._to_list(behavior, json_conversions)
 
-        out = self._data.tolist()
+        data = self._data
+        if json_conversions is not None and data.dtype.type is np.longdouble:
+            # The json module writes Python floats, which are doubles. A long
+            # double is written as the nearest double, which is infinite for a
+            # value beyond the range of double. The strings below are chosen
+            # from the converted values for that reason.
+            (data,) = maybe_materialize(data)
+            data = data.astype(np.float64)
+        out = data.tolist()
 
         if json_conversions is not None:
             nan_string = json_conversions["nan_string"]
             if nan_string is not None:
-                for i in self._backend.nplike.nonzero(
-                    self._backend.nplike.isnan(self._data)
-                )[0]:
+                is_nan = self._backend.nplike.isnan(data)
+                for i in self._backend.nplike.nonzero(is_nan)[0]:
                     out[i] = nan_string
 
             posinf_string = json_conversions["posinf_string"]
             if posinf_string is not None:
-                for i in self._backend.nplike.nonzero(self._data == np.inf)[0]:
+                for i in self._backend.nplike.nonzero(data == np.inf)[0]:
                     out[i] = posinf_string
 
             neginf_string = json_conversions["neginf_string"]
             if neginf_string is not None:
-                for i in self._backend.nplike.nonzero(self._data == -np.inf)[0]:
+                for i in self._backend.nplike.nonzero(data == -np.inf)[0]:
                     out[i] = neginf_string
 
         return out

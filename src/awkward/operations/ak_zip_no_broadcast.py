@@ -35,6 +35,11 @@ def zip_no_broadcast(
     #ak.Array.__getitem__, which extracts fields one at a time, or #ak.unzip,
     which extracts them all in one call.
 
+    Only #ak.contents.NumpyArray layouts and #ak.contents.ListOffsetArray
+    layouts with NumpyArray contents are supported. List contents such as
+    strings, records, options, or further nested lists raise NotImplementedError;
+    use #ak.zip for those layouts.
+
     See also #ak.zip and #ak.unzip.
 
     Args:
@@ -105,6 +110,9 @@ def _impl(
     behavior,
     attrs,
 ):
+    if len(arrays) == 0:
+        raise ValueError("zip_no_broadcast requires at least one array")
+
     with HighLevelContext(behavior=behavior, attrs=attrs) as ctx:
         if isinstance(arrays, Mapping):
             layouts = ensure_same_backend(
@@ -167,8 +175,9 @@ def _impl(
         for layout in layouts:
             # get the content of the ListOffsetArray
             if not isinstance(layout.content, ak.contents.NumpyArray):
-                raise ValueError(
-                    "can not (unsafe) zip ListOffsetArrays with non-NumpyArray contents"
+                raise NotImplementedError(
+                    "ak.zip_no_broadcast cannot (safely) zip ListOffsetArrays whose "
+                    "contents are not NumpyArray. Use ak.zip instead."
                 )
             contents.append(layout.content)
 
@@ -181,13 +190,16 @@ def _impl(
             # but only those that have actual data, i.e. no PlaceholderArrays
             # so first, let's filter out any PlaceholderArrays
             comparable_offsets = filter(
-                lambda o: not isinstance(o, ak._nplikes.placeholder.PlaceholderArray),
+                lambda o: (
+                    not isinstance(o.data, ak._nplikes.placeholder.PlaceholderArray)
+                ),
                 (layout.offsets for layout in layouts),
             )
             # check that offsets are the same
-            first = next(comparable_offsets)
+            first = next(comparable_offsets, layouts[0].offsets)
             if not all(
-                first.nplike.all(offsets.data == first.data)
+                offsets.length == first.length
+                and first.nplike.all(offsets.data == first.data)
                 for offsets in comparable_offsets
             ):
                 raise ValueError("all ListOffsetArrays must have the same offsets")

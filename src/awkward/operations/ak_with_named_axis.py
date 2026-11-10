@@ -5,8 +5,6 @@ from awkward._dispatch import high_level_function
 from awkward._layout import HighLevelContext
 from awkward._namedaxis import (
     NAMED_AXIS_KEY,
-    AxisMapping,
-    AxisTuple,
     _prepare_named_axis_for_attrs,
 )
 from awkward._nplikes.numpy_like import NumpyMetadata
@@ -19,7 +17,7 @@ np = NumpyMetadata.instance()
 @high_level_function()
 def with_named_axis(
     array,
-    named_axis: AxisTuple | AxisMapping,
+    named_axis,
     *,
     highlevel=True,
     behavior=None,

@@ -17,7 +17,7 @@ np = NumpyMetadata.instance()
 @high_level_function()
 def round(
     array,
-    decimals: int = 0,
+    decimals=0,
     out=UNSUPPORTED,
     highlevel=True,
     behavior=None,

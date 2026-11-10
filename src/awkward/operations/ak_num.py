@@ -11,7 +11,6 @@ from awkward._namedaxis import (
 )
 from awkward._nplikes.numpy_like import NumpyMetadata
 from awkward._regularize import regularize_axis
-from awkward._typing import Mapping
 from awkward.errors import AxisError
 
 __all__ = ("num",)
@@ -24,9 +23,9 @@ def num(
     array,
     axis=1,
     *,
-    highlevel: bool = True,
-    behavior: Mapping | None = None,
-    attrs: Mapping | None = None,
+    highlevel=True,
+    behavior=None,
+    attrs=None,
 ):
     """Returns the number of elements at a given axis depth.
 
@@ -106,9 +105,9 @@ def num(
 def _impl(
     array,
     axis,
-    highlevel: bool,
-    behavior: Mapping | None,
-    attrs: Mapping | None,
+    highlevel,
+    behavior,
+    attrs,
 ):
     with HighLevelContext(behavior=behavior, attrs=attrs) as ctx:
         layout = ctx.unwrap(array, allow_record=False, primitive_policy="error")

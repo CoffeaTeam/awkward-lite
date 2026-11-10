@@ -8,7 +8,6 @@ from awkward._dispatch import high_level_function
 from awkward._layout import HighLevelContext, ensure_same_backend
 from awkward._namedaxis import NAMED_AXIS_KEY, NamedAxesWithDims, _unify_named_axis
 from awkward._nplikes.numpy_like import NumpyMetadata
-from awkward._typing import Mapping
 
 __all__ = ("nan_to_num",)
 
@@ -18,14 +17,14 @@ np = NumpyMetadata.instance()
 @high_level_function()
 def nan_to_num(
     array,
-    copy: bool = True,
+    copy=True,
     nan=0.0,
     posinf=None,
     neginf=None,
     *,
-    highlevel: bool = True,
-    behavior: Mapping | None = None,
-    attrs: Mapping | None = None,
+    highlevel=True,
+    behavior=None,
+    attrs=None,
 ):
     """Replaces NaN and infinite values with finite numbers in floating-point arrays.
 
@@ -62,13 +61,13 @@ def nan_to_num(
 
 def _impl(
     array,
-    copy: bool,
+    copy,
     nan,
     posinf,
     neginf,
-    highlevel: bool,
-    behavior: Mapping | None,
-    attrs: Mapping | None,
+    highlevel,
+    behavior,
+    attrs,
 ):
     with HighLevelContext(behavior=behavior, attrs=attrs) as ctx:
         layout, nan_layout, posinf_layout, neginf_layout = ensure_same_backend(

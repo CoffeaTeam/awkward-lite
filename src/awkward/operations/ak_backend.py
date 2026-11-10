@@ -36,6 +36,6 @@ def backend(*arrays):
     return _impl(arrays)
 
 
-def _impl(arrays) -> str:
+def _impl(arrays):
     backend_impl = backend_of(*arrays, default=None, coerce_to_common=True)
     return backend_impl.name

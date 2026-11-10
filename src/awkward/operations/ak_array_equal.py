@@ -12,12 +12,12 @@ __all__ = ("array_equal",)
 def array_equal(
     a1,
     a2,
-    equal_nan: bool = False,
-    dtype_exact: bool = True,
-    same_content_types: bool = True,
-    check_parameters: bool = True,
-    check_regular: bool = True,
-    check_named_axis: bool = True,
+    equal_nan=False,
+    dtype_exact=True,
+    same_content_types=True,
+    check_parameters=True,
+    check_regular=True,
+    check_named_axis=True,
 ):
     """Returns True if two arrays have the same shape and elements.
 

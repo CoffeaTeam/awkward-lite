@@ -5,7 +5,6 @@ import awkward as ak
 from awkward._dispatch import high_level_function
 from awkward._layout import HighLevelContext
 from awkward._nplikes.numpy_like import NumpyMetadata
-from awkward._typing import Mapping
 
 __all__ = ("nan_to_none",)
 
@@ -16,9 +15,9 @@ np = NumpyMetadata.instance()
 def nan_to_none(
     array,
     *,
-    highlevel: bool = True,
-    behavior: Mapping | None = None,
-    attrs: Mapping | None = None,
+    highlevel=True,
+    behavior=None,
+    attrs=None,
 ):
     """Converts NaN ("not a number") into None, i.e. missing values with option-type.
 
@@ -44,7 +43,7 @@ def nan_to_none(
     return _impl(array, highlevel, behavior, attrs)
 
 
-def _impl(array, highlevel: bool, behavior: Mapping | None, attrs: Mapping | None):
+def _impl(array, highlevel, behavior, attrs):
     def action(layout, continuation, backend, **kwargs):
         if layout.is_numpy and np.issubdtype(layout.dtype, np.floating):
             mask = backend.nplike.isnan(layout.data)

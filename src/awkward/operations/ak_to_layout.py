@@ -4,7 +4,6 @@
 from collections.abc import Iterable
 from datetime import date, datetime, time
 from numbers import Number
-from typing import Any
 
 from awkward_cpp.lib import _ext
 
@@ -150,7 +149,7 @@ def _impl(
     use_from_iter,
     primitive_policy,
     string_policy,
-) -> Any:
+):
     # Well-defined types
     if isinstance(obj, ak.contents.Content):
         return obj

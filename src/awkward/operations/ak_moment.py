@@ -9,12 +9,8 @@ from awkward._layout import (
     ensure_same_backend,
     maybe_highlevel_to_lowlevel,
 )
-from awkward._namedaxis import (
-    AxisName,
-    _get_named_axis,
-)
+from awkward._namedaxis import _get_named_axis
 from awkward._nplikes.numpy_like import NumpyMetadata
-from awkward._typing import Mapping
 
 __all__ = ("moment",)
 
@@ -28,11 +24,11 @@ def moment(
     weight=None,
     axis=None,
     *,
-    keepdims: bool = False,
-    mask_identity: bool = False,
-    highlevel: bool = True,
-    behavior: Mapping | None = None,
-    attrs: Mapping | None = None,
+    keepdims=False,
+    mask_identity=False,
+    highlevel=True,
+    behavior=None,
+    attrs=None,
 ):
     """Computes the `n`th moment over one or all levels of nesting.
 
@@ -101,12 +97,12 @@ def _impl(
     x,
     n,
     weight,
-    axis: AxisName,
-    keepdims: bool,
-    mask_identity: bool,
-    highlevel: bool,
-    behavior: Mapping | None,
-    attrs: Mapping | None,
+    axis,
+    keepdims,
+    mask_identity,
+    highlevel,
+    behavior,
+    attrs,
 ):
     with HighLevelContext(behavior=behavior, attrs=attrs) as ctx:
         x_layout, weight_layout = ensure_same_backend(

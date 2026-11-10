@@ -22,12 +22,12 @@ def almost_equal(
     left,
     right,
     *,
-    rtol: float = 1e-5,
-    atol: float = 1e-8,
-    dtype_exact: bool = True,
-    check_parameters: bool = True,
-    check_regular: bool = True,
-    check_named_axis: bool = True,
+    rtol=1e-5,
+    atol=1e-8,
+    dtype_exact=True,
+    check_parameters=True,
+    check_regular=True,
+    check_named_axis=True,
 ):
     """Returns True if two arrays are equal within the given tolerances and options.
 
@@ -75,15 +75,15 @@ def almost_equal(
 def _impl(
     left,
     right,
-    rtol: float,
-    atol: float,
-    dtype_exact: bool,
-    check_parameters: bool,
-    check_regular: bool,
-    check_named_axis: bool,
-    exact_eq: bool,
-    same_content_types: bool,
-    equal_nan: bool,
+    rtol,
+    atol,
+    dtype_exact,
+    check_parameters,
+    check_regular,
+    check_named_axis,
+    exact_eq,
+    same_content_types,
+    equal_nan,
 ):
     # Implementation
     left_behavior = behavior_of(left)

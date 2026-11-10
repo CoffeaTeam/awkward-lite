@@ -3,43 +3,14 @@
 #define FILENAME(line) FILENAME_FOR_EXCEPTIONS_C("src/cpu-kernels/awkward_argsort_complex.cpp", line)
 
 #include <algorithm>
-#include <cmath>
 #include <numeric>
 #include <vector>
 
 #include "awkward/kernels.h"
+#include "awkward/numeric-sort.h"
 
-// Per-segment argsort of complex numbers, each stored as a real and an
-// imaginary part, in the order of awkward_sort_complex: by real part and then
-// by imaginary part, with NaN first regardless of direction.
-template <typename T>
-bool argsort_complex_part_ascending(T l, T r)
-{
-  return !std::isnan(r) && (std::isnan(l) || l < r);
-}
-
-template <typename T>
-bool argsort_complex_part_descending(T l, T r)
-{
-  return !std::isnan(r) && (std::isnan(l) || l > r);
-}
-
-template <typename T>
-bool argsort_complex_order_ascending(const T* l, const T* r)
-{
-  return argsort_complex_part_ascending(l[0], r[0]) ||
-         (!argsort_complex_part_ascending(r[0], l[0]) &&
-          argsort_complex_part_ascending(l[1], r[1]));
-}
-
-template <typename T>
-bool argsort_complex_order_descending(const T* l, const T* r)
-{
-  return argsort_complex_part_descending(l[0], r[0]) ||
-         (!argsort_complex_part_descending(r[0], l[0]) &&
-          argsort_complex_part_descending(l[1], r[1]));
-}
-
+// Per-segment argsort of complex numbers in ComplexOrder, as in
+// awkward_sort_complex.
 template <typename T, typename U>
 ERROR awkward_argsort_complex(
   int64_t* __restrict__ toptr,
@@ -52,10 +23,10 @@ ERROR awkward_argsort_complex(
   std::iota(toptr, toptr + length, int64_t{0});
 
   auto order_ascending = [fromptr](int64_t i1, int64_t i2) {
-    return argsort_complex_order_ascending<T>(fromptr + 2 * i1, fromptr + 2 * i2);
+    return awkward::kernel::ComplexOrder<T, true>{}(fromptr + 2 * i1, fromptr + 2 * i2);
   };
   auto order_descending = [fromptr](int64_t i1, int64_t i2) {
-    return argsort_complex_order_descending<T>(fromptr + 2 * i1, fromptr + 2 * i2);
+    return awkward::kernel::ComplexOrder<T, false>{}(fromptr + 2 * i1, fromptr + 2 * i2);
   };
 
   // Each segment of `toptr` is sorted independently.

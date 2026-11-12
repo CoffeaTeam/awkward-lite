@@ -218,18 +218,42 @@ def test_argument_text_matches_repr(value):
 
 
 def test_argument_whose_repr_raises():
-    class Broken:
-        def __repr__(self):
-            raise ValueError("no repr")
+    value = {}
 
-    for value in ([Broken()], {"a": Broken()}):
-        assert (
-            ak._errors.ErrorContext().format_argument(72, value)
-            == "repr-raised-ValueError"
-        )
+    class Grows:
+        def __repr__(self):
+            value["c"] = 2
+            return "g"
+
+    value.update(a=Grows(), b=1)
+    assert (
+        ak._errors.ErrorContext().format_argument(72, value)
+        == "repr-raised-RuntimeError"
+    )
 
 
 @needs_subprocess
+@pytest.mark.parametrize(
+    "make_x",
+    [
+        "x = []; x.extend([x, x])",
+        "x = {}; x['a'] = x; x['b'] = x",
+        "x = 0\nfor _ in range(72):\n    x = [x, x]",
+        "class L(list): ...\nx = L()\nfor _ in range(72):\n    x = L([x, x])",
+        "import collections\nclass Q(collections.deque): ...\nx = Q()\nfor _ in range(72):\n    x = Q([x, x])",
+    ],
+)
+def test_branching_container_error_formatting_is_bounded(make_x):
+    out = run(
+        f"{make_x}\n"
+        "text = ak._errors.ErrorContext().format_argument(72, x)\n"
+        "assert len(text) <= 72\n"
+        "print('formatted')"
+    )
+    assert out.returncode == 0, out.stderr[-2000:]
+    assert out.stdout.strip() == "formatted"
+
+
 @needs_subprocess
 def test_branching_cycle_from_iter_raises_promptly():
     out = run(

@@ -291,19 +291,24 @@ def lower_const_view(context, builder, viewtype, view):
     start = view.start
     stop = view.stop
     lookup = view.lookup
+    # Compiled code embeds the addresses of the lookup and of its buffers. Keep
+    # them alive even if Array._update_class discards its cached view.
+    if not any(owner is lookup for owner in context.environment.consts):
+        context.environment.consts.append(lookup)
     arrayptrs = lookup.arrayptrs
-
-    arrayptrs_val = context.make_constant_array(
-        builder, numba.typeof(arrayptrs), arrayptrs
-    )
 
     proxyout = context.make_helper(builder, viewtype)
     proxyout.pos = context.get_constant(numba.intp, pos)
     proxyout.start = context.get_constant(numba.intp, start)
     proxyout.stop = context.get_constant(numba.intp, stop)
-    proxyout.arrayptrs = context.make_helper(
-        builder, numba.typeof(arrayptrs), arrayptrs_val
-    ).data
+    # The buffer addresses are process-local: as a dynamic address rather than
+    # a constant array, Numba does not write them to the disk cache.
+    proxyout.arrayptrs = builder.bitcast(
+        context.add_dynamic_addr(
+            builder, arrayptrs.ctypes.data, info="arrayptrs of a constant view"
+        ),
+        context.get_value_type(numba.types.CPointer(numba.intp)),
+    )
     proxyout.pylookup = context.add_dynamic_addr(
         builder, id(lookup), info=str(type(lookup))
     )

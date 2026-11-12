@@ -136,7 +136,10 @@ class ErrorContext:
                 valuestr = valuestr[: width - 3] + "..."
 
         elif isinstance(value, (Collection, Mapping)) and len(value) < 10000:
-            valuestr = repr(value)
+            try:
+                valuestr = repr(value)
+            except Exception as err:
+                valuestr = f"repr-raised-{type(err).__name__}"
             if len(valuestr) > width:
                 valuestr = valuestr[: width - 3] + "..."
 

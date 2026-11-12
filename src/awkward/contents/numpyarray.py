@@ -728,11 +728,7 @@ class NumpyArray(NumpyMeta, Content):
 
             offsets_local = ak.index.Index64.zeros(2, self._backend.nplike)
             offsets_local[1] = self._data.size
-            dtype = (
-                np.dtype(np.int64)
-                if self._data.dtype.kind.upper() == "M"
-                else self._data.dtype
-            )
+            dtype = self._sorting_kernel_dtype()
             out = self._backend.nplike.empty(self._data.size, dtype=dtype)
             assert offsets_local.nplike is self._backend.nplike
             self._backend.maybe_kernel_error(

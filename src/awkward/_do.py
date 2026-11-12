@@ -240,9 +240,13 @@ def real_numbers_to_float64(layout: Content) -> Content:
 
     Data that are not real numbers (complex numbers, date-times, and time
     differences) are returned as they are, because a cast to float64 would
-    discard the imaginary part or the units.
+    discard the imaginary part or the units. So are long double data where
+    they are wider than float64, because the cast would discard digits.
     """
-    if all(dtype.kind in "biuf" for dtype in _number_dtypes(layout)):
+    if all(
+        dtype.kind in "biu" or (dtype.kind == "f" and dtype.itemsize <= 8)
+        for dtype in _number_dtypes(layout)
+    ):
         return layout._numbers_to_type("float64", False)
     else:
         return layout

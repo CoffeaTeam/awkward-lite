@@ -79,6 +79,26 @@ class CTypesKernel(BaseKernel):
             ),
         )(ctypes.cast(impl, ctypes.c_void_p).value)
 
+        # ctypes makes a long double argument from a Python float, which is a
+        # double. Where long double is wider, a kernel that takes one (the
+        # identity of a reducer) is given the bytes of the value instead.
+        if ctypes.sizeof(ctypes.c_longdouble) > ctypes.sizeof(ctypes.c_double):
+            positions = tuple(
+                i for i, t in enumerate(argtypes) if t is ctypes.c_longdouble
+            )
+            if positions:
+                call = self._call
+
+                def call_with_long_doubles(*args):
+                    args = list(args)
+                    for i in positions:
+                        args[i] = ctypes.c_longdouble.from_buffer_copy(
+                            metadata.longdouble(args[i]).tobytes()
+                        )
+                    return call(*args)
+
+                self._call = call_with_long_doubles
+
     def _pointer_of(self, x):
         """The address of ``x``'s buffer, rejecting anything this backend cannot pass."""
         raise NotImplementedError

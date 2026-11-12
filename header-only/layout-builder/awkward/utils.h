@@ -64,6 +64,13 @@ namespace awkward {
     else if (std::is_same_v<T, std::complex<double>>) {
       return "complex128";
     }
+    else if (std::is_same_v<T, long double>) {
+      // NumPy names long double by its size, which depends on the platform.
+      return "float" + std::to_string(8 * sizeof(T));
+    }
+    else if (std::is_same_v<T, std::complex<long double>>) {
+      return "complex" + std::to_string(8 * sizeof(T));
+    }
 
     // std::is_integral_v<T> and sizeof(T) not in (1, 2, 4, 8) can get here.
     // Don't connect this line with the above as an 'else' clause.

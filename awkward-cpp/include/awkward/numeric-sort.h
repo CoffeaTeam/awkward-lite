@@ -28,6 +28,18 @@ namespace awkward::kernel {
       }
     }
   };
+
+  // Complex numbers, each stored as a real and an imaginary part, compare by
+  // real part and then by imaginary part, each in NumericOrder. So complex
+  // numbers without an imaginary part sort like their real parts.
+  template <typename T, bool Ascending>
+  struct ComplexOrder {
+    [[nodiscard]] bool operator()(const T* left, const T* right) const noexcept {
+      const NumericOrder<T, Ascending> order{};
+      return order(left[0], right[0]) ||
+             (!order(right[0], left[0]) && order(left[1], right[1]));
+    }
+  };
 }
 
 #endif // AWKWARD_NUMERIC_SORT_H_

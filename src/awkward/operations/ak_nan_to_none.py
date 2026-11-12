@@ -21,6 +21,8 @@ def nan_to_none(
 ):
     """Converts NaN ("not a number") into None, i.e. missing values with option-type.
 
+    A complex number is NaN if either of its parts is, as in `np.isnan`.
+
     See also #ak.nan_to_num to convert NaN or infinity to specified values.
 
     Args:
@@ -45,7 +47,7 @@ def nan_to_none(
 
 def _impl(array, highlevel, behavior, attrs):
     def action(layout, continuation, backend, **kwargs):
-        if layout.is_numpy and np.issubdtype(layout.dtype, np.floating):
+        if layout.is_numpy and layout.dtype.kind in "fc":
             mask = backend.nplike.isnan(layout.data)
             return ak.contents.ByteMaskedArray(
                 ak.index.Index8(mask, nplike=backend.nplike),
@@ -54,7 +56,7 @@ def _impl(array, highlevel, behavior, attrs):
             )
 
         elif (layout.is_option or layout.is_indexed) and (
-            layout.content.is_numpy and np.issubdtype(layout.content.dtype, np.floating)
+            layout.content.is_numpy and layout.content.dtype.kind in "fc"
         ):
             return continuation()
 

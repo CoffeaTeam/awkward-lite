@@ -52,7 +52,7 @@ class KernelReducer(Reducer):
     @classmethod
     def _length_for_kernel(cls, type: DTypeLike, length: ShapeItem) -> ShapeItem:
         # Complex types are implemented as double-wide arrays
-        return 2 * length if type in (np.complex128, np.complex64) else length
+        return 2 * length if np.dtype(type).kind == "c" else length
 
     @classmethod
     def _dtype_for_kernel(cls, dtype: DTypeLike) -> DTypeLike:
@@ -63,6 +63,9 @@ class KernelReducer(Reducer):
             return np.dtype(np.float64)
         elif dtype == np.complex64:
             return np.dtype(np.float32)
+        elif dtype.kind == "c":
+            # long double complex numbers are pairs of long doubles
+            return np.dtype(np.longdouble)
         else:
             return dtype
 
@@ -151,7 +154,7 @@ class ArgMin(KernelReducer):
         assert isinstance(array, ak.contents.NumpyArray)
         kernel_array_data = array.data.view(self._dtype_for_kernel(array.dtype))
         result = array.backend.nplike.empty(outlength, dtype=np.int64)
-        if array.dtype.type in (np.complex128, np.complex64):
+        if array.dtype.kind == "c":
             assert offsets.nplike is array.backend.nplike
             array.backend.maybe_kernel_error(
                 array.backend[
@@ -212,7 +215,7 @@ class ArgMax(KernelReducer):
         assert isinstance(array, ak.contents.NumpyArray)
         kernel_array_data = array.data.view(self._dtype_for_kernel(array.dtype))
         result = array.backend.nplike.empty(outlength, dtype=np.int64)
-        if array.dtype.type in (np.complex128, np.complex64):
+        if array.dtype.kind == "c":
             assert offsets.nplike is array.backend.nplike
             array.backend.maybe_kernel_error(
                 array.backend[
@@ -391,7 +394,7 @@ class Sum(KernelReducer):
                 self._length_for_kernel(array.dtype.type, outlength),
                 dtype=self._promote_integer_rank(kernel_array_data.dtype),
             )
-            if array.dtype.type in (np.complex128, np.complex64):
+            if array.dtype.kind == "c":
                 assert offsets.nplike is array.backend.nplike
                 array.backend.maybe_kernel_error(
                     array.backend[
@@ -497,7 +500,7 @@ class Prod(KernelReducer):
                 self._length_for_kernel(array.dtype.type, outlength),
                 dtype=self._promote_integer_rank(kernel_array_data.dtype),
             )
-            if array.dtype.type in (np.complex128, np.complex64):
+            if array.dtype.kind == "c":
                 assert offsets.nplike is array.backend.nplike
                 array.backend.maybe_kernel_error(
                     array.backend[
@@ -551,7 +554,7 @@ class Any(KernelReducer):
         kernel_array_data = array.data.view(self._dtype_for_kernel(array.dtype))
         result = array.backend.nplike.empty(outlength, dtype=np.bool_)
 
-        if array.dtype.type in (np.complex128, np.complex64):
+        if array.dtype.kind == "c":
             assert offsets.nplike is array.backend.nplike
             array.backend.maybe_kernel_error(
                 array.backend[
@@ -601,7 +604,7 @@ class All(KernelReducer):
         kernel_array_data = array.data.view(self._dtype_for_kernel(array.dtype))
         result = array.backend.nplike.empty(outlength, dtype=np.bool_)
 
-        if array.dtype.type in (np.complex128, np.complex64):
+        if array.dtype.kind == "c":
             assert offsets.nplike is array.backend.nplike
             array.backend.maybe_kernel_error(
                 array.backend[
@@ -704,7 +707,7 @@ class Min(KernelReducer):
                 self._length_for_kernel(array.dtype.type, outlength),
                 dtype=kernel_array_data.dtype,
             )
-            if array.dtype.type in (np.complex128, np.complex64):
+            if array.dtype.kind == "c":
                 assert offsets.nplike is array.backend.nplike
                 array.backend.maybe_kernel_error(
                     array.backend[
@@ -849,7 +852,7 @@ class Max(KernelReducer):
                 self._length_for_kernel(array.dtype.type, outlength),
                 dtype=kernel_array_data.dtype,
             )
-            if array.dtype.type in (np.complex128, np.complex64):
+            if array.dtype.kind == "c":
                 assert offsets.nplike is array.backend.nplike
                 array.backend.maybe_kernel_error(
                     array.backend[

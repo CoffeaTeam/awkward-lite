@@ -405,6 +405,20 @@ def test_json():
     written = ak.to_json(array, complex_record_fields=("real", "imag"))
     assert json.loads(written) == [{"real": float(third), "imag": 2 * float(third)}]
 
+    # infinities and NaN are written as before
+    special = ak.Array(np.array([np.inf, -np.inf, np.nan], dtype=np.longdouble))
+    written = ak.to_json(
+        special, nan_string="nan", posinf_string="inf", neginf_string="-inf"
+    )
+    assert json.loads(written) == ["inf", "-inf", "nan"]
+
+    if LONGDOUBLE_IS_WIDER:
+        # a finite value beyond the range of double cannot be written
+        huge = np.longdouble(np.finfo(np.float64).max) * 4
+        for value in (huge, -huge):
+            with pytest.raises(ValueError, match="beyond their range"):
+                ak.to_json(ak.Array(np.array([1, value], dtype=np.longdouble)))
+
 
 def test_arrow():
     pytest.importorskip("pyarrow")

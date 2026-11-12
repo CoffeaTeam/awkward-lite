@@ -1286,12 +1286,20 @@ class NumpyArray(NumpyMeta, Content):
 
         data = self._data
         if json_conversions is not None and data.dtype.type is np.longdouble:
-            # The json module writes Python floats, which are doubles. A long
-            # double is written as the nearest double, which is infinite for a
-            # value beyond the range of double. The strings below are chosen
-            # from the converted values for that reason.
+            # The json module writes Python floats, which are doubles, so a long
+            # double is written as the nearest double. A finite long double
+            # beyond the range of double would become infinite: raise instead.
             (data,) = maybe_materialize(data)
-            data = data.astype(np.float64)
+            with np.errstate(over="ignore"):
+                converted = data.astype(np.float64)
+            overflow = (abs(converted) == np.inf) & (abs(data) != np.inf)
+            if numpy.any(overflow):
+                raise ValueError(
+                    f"cannot convert {data[overflow][0]} to JSON: Python writes "
+                    "JSON numbers as doubles, and this long double is beyond "
+                    "their range"
+                )
+            data = converted
         out = data.tolist()
 
         if json_conversions is not None:

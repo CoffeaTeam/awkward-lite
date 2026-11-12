@@ -507,13 +507,23 @@ def test_rdataframe_float16():
         ak.to_rdataframe({"x": array})
 
 
-def test_long_double_form_from_an_awkward1_pickle():
+@pytest.mark.parametrize(
+    "format, itemsize, primitive",
+    [
+        ("g", 8, "float64"),
+        ("Zg", 16, "complex128"),
+        ("g", 16, "float128"),
+        ("Zg", 32, "complex256"),
+    ],
+)
+def test_long_double_form_from_an_awkward1_pickle(format, itemsize, primitive):
+    # long double is double where it has 8 bytes, and float128 where it has 16
     form = ak.forms.NumpyForm.__new__(ak.forms.NumpyForm)
-    state = (False, None, None, (), np.dtype(np.longdouble).itemsize, "g")
+    state = (False, None, None, (), itemsize, format)
 
-    if hasattr(np, "float128"):
+    if hasattr(np, primitive):
         form.__setstate__(state)
-        assert form.primitive == "float128"
+        assert form.primitive == primitive
     else:
-        with pytest.raises(TypeError, match="unrecognized primitive: 'float128'"):
+        with pytest.raises(TypeError, match=f"unrecognized primitive: '{primitive}'"):
             form.__setstate__(state)

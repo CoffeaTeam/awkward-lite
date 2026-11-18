@@ -15,8 +15,8 @@ ipyleaflet
 
 numpy
 scipy
-numba>=0.50.0;python_version<"3.11"
-pandas>=0.24.0
+numba
+pandas>=1.5.0
 numexpr
 pyarrow>=17.0.0
 fsspec

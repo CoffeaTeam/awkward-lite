@@ -5,11 +5,10 @@ import ctypes
 import json
 import re
 
-from awkward_cpp import libawkward
-
 import awkward as ak
 from awkward._nplikes.numpy import Numpy
 from awkward._nplikes.numpy_like import NumpyMetadata
+from awkward_cpp import libawkward
 
 np = NumpyMetadata.instance()
 numpy = Numpy.instance()

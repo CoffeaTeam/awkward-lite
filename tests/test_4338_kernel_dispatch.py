@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import ctypes
 
-import awkward_cpp
 import numpy as np
 import pytest
 
 import awkward as ak
+import awkward_cpp
 from awkward._backends.numpy import NumpyBackend
 from awkward._backends.typetracer import TypeTracerBackend
 from awkward._kernels import CTypesKernel, NumpyKernel

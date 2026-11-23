@@ -16,9 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Leverage reproducible builds by setting a constant SOURCE_DATE_EPOCH
-  # This will ensure that the hash of the awkward-cpp directory remains
-  # constant for unchanged files, meaning that it can be used for caching
+  # The C++ code is compiled through ccache, which is cached between runs.
+  # Only runs on main save the cache; pull requests restore it.
+  CMAKE_CXX_COMPILER_LAUNCHER: ccache
+  CMAKE_GENERATOR: Ninja
+  # A constant timestamp keeps the generated kernels.h, which every kernel
+  # includes, identical between runs
   SOURCE_DATE_EPOCH: "1668811211"
 
 jobs:
@@ -93,45 +96,25 @@ jobs:
           architecture: '${{ matrix.python-architecture }}'
           allow-prereleases: true
 
-      - name: Generate build files
-        run: pipx run nox -s prepare -- --headers --signatures --tests
-
-      - name: Cache awkward-cpp wheel
-        id: cache-awkward-cpp-wheel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@e91f31892a1d1b8c44424b1a94c0b7f52d337168 # v1.2.26
         with:
-          path: awkward-cpp/dist
-          key: ${{ github.job }}-${{ matrix.runs-on }}-${{ matrix.python-version }}-${{ matrix.python-architecture }}${{ runner.os == 'macOS' && format('-macosx{0}', env.MACOSX_DEPLOYMENT_TARGET) || '' }}-${{ hashFiles('awkward-cpp/**') }}
+          key: ${{ github.job }}-${{ matrix.runs-on }}-${{ matrix.python-version }}-${{ matrix.python-architecture }}
+          save: ${{ github.event_name != 'pull_request' }}
 
-      - name: Build awkward-cpp wheel
-        if: steps.cache-awkward-cpp-wheel.outputs.cache-hit != 'true'
-        run: |
-          python -m pip install build
-          python -m build -w awkward-cpp
-
-      - name: Find built wheel
-        uses: tj-actions/glob@2deae40528141fc53131606d56b4e4ce2a486b29 # v22.0.2
-        id: find-wheel
+      # ccache needs a Ninja build with the MSVC environment on Windows
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@a102174a2b586eec2ea151a69e6fd14404a8ce7c # v1.13.0
         with:
-          files: |
-            awkward-cpp/dist/*.whl
+          arch: ${{ matrix.python-architecture == 'x86' && 'x86' || 'x64' }}
 
-      # awkward requires awkward-cpp by a URL to the main branch of this
-      # repository, which pip cannot combine with the wheel built from this
-      # checkout. Without the URL, the requirement is met by that wheel.
-      - name: Require the awkward-cpp built from this checkout
-        run: |
-          sed -i.bak 's| @ git+.*#subdirectory=awkward-cpp||' pyproject.toml
-          if grep -q 'awkward_cpp @' pyproject.toml; then echo "the awkward-cpp requirement still has a URL"; exit 1; fi
-        shell: bash
-
-      - name: Install awkward, awkward-cpp, and dependencies
+      - name: Install awkward and dependencies
         run: >-
-          python -m pip install -v . ${STEPS_FIND_WHEEL_OUTPUTS_PATHS} pytest-github-actions-annotate-failures
+          python -m pip install -v . pytest-github-actions-annotate-failures
           -r "requirements-test-${MATRIX_DEPENDENCIES_KIND}.txt"
         shell: bash
         env:
-          STEPS_FIND_WHEEL_OUTPUTS_PATHS: ${{ steps.find-wheel.outputs.paths }}
           MATRIX_DEPENDENCIES_KIND: ${{ matrix.dependencies-kind }}
 
       - name: Print versions
@@ -141,8 +124,8 @@ jobs:
       - name: Test specification and CPU kernels
         run: >-
           python -m pytest -vv -rs
-          awkward-cpp/tests-spec awkward-cpp/tests-spec-explicit
-          awkward-cpp/tests-cpu-kernels awkward-cpp/tests-cpu-kernels-explicit
+          tests-spec tests-spec-explicit
+          tests-cpu-kernels tests-cpu-kernels-explicit
 
       - name: Test non-kernels (Python)
         run: >-
@@ -186,33 +169,16 @@ jobs:
             numpy
             root
 
-      - name: Generate build files
-        run: pipx run nox -s prepare -- --headers --signatures --tests
-
-      - name: Cache awkward-cpp wheel
-        id: cache-awkward-cpp-wheel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@e91f31892a1d1b8c44424b1a94c0b7f52d337168 # v1.2.26
         with:
-          path: ./awkward-cpp/dist
-          key: ${{ github.job }}-${{ hashFiles('awkward-cpp/**') }}-py3.14
+          key: ${{ github.job }}
+          save: ${{ github.event_name != 'pull_request' }}
 
-      - name: Build awkward-cpp wheel
-        if: steps.cache-awkward-cpp-wheel.outputs.cache-hit != 'true'
-        run: |
-          python3 -m pip install build
-          python3 -m build -w ./awkward-cpp
-
-      # See the note in the run-tests job
-      - name: Require the awkward-cpp built from this checkout
-        run: |
-          sed -i.bak 's| @ git+.*#subdirectory=awkward-cpp||' pyproject.toml
-          if grep -q 'awkward_cpp @' pyproject.toml; then echo "the awkward-cpp requirement still has a URL"; exit 1; fi
-
-      - name: Install awkward, awkward-cpp, and dependencies
+      - name: Install awkward and dependencies
         run: >-
           python -m pip install --only-binary "numpy,pandas,pyarrow,numexpr"
-          -v . ./awkward-cpp/dist/*.whl
-          pytest-github-actions-annotate-failures
+          -v . pytest-github-actions-annotate-failures
           -r requirements-test-full.txt
 
       - name: Print versions
@@ -242,21 +208,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Generate build files
-        run: pipx run --python python3.11 nox -s prepare -- --headers --signatures --tests
-
-      - name: Cache awkward-cpp wheel
-        id: cache-awkward-cpp-wheel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@e91f31892a1d1b8c44424b1a94c0b7f52d337168 # v1.2.26
         with:
-          path: ./awkward-cpp/dist
-          key: ${{ github.job }}-${{ hashFiles('awkward-cpp/**') }}
-
-      - name: Build awkward-cpp wheel
-        if: steps.cache-awkward-cpp-wheel.outputs.cache-hit != 'true'
-        run: |
-          python -m pip install build
-          python -m build -w ./awkward-cpp
+          key: ${{ github.job }}
+          save: ${{ github.event_name != 'pull_request' }}
 
       - name: Extract pre-built manylinux cppyy wheels
         uses: shrink/actions-docker-extract@f1ef61065b78731fe3310b4e84e511f6a927a77e # v4.0.0
@@ -265,16 +221,10 @@ jobs:
           path: "/wheels/."
           destination: "/tmp/wheelhouse"
 
-      # See the note in the run-tests job
-      - name: Require the awkward-cpp built from this checkout
-        run: |
-          sed -i.bak 's| @ git+.*#subdirectory=awkward-cpp||' pyproject.toml
-          if grep -q 'awkward_cpp @' pyproject.toml; then echo "the awkward-cpp requirement still has a URL"; exit 1; fi
-
-      - name: Install awkward, awkward-cpp, and dependencies
+      - name: Install awkward and dependencies
         run: >-
           python -m pip install -v --only-binary "numpy,pandas,pyarrow,numexpr"
-          ./ ./awkward-cpp/dist/*.whl /tmp/wheelhouse/* pytest-github-actions-annotate-failures
+          . /tmp/wheelhouse/* pytest-github-actions-annotate-failures
 
       - name: Print versions
         run: python -m pip list

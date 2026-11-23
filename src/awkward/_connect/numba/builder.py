@@ -5,11 +5,11 @@ import numba
 import numba.core.typing
 import numba.core.typing.ctypes_utils
 import numpy
-from awkward_cpp import libawkward
 from numba.core.errors import NumbaTypeError
 from numba.cpython.unicode import _get_code_point
 
 import awkward as ak
+from awkward_cpp import libawkward
 
 dynamic_addrs = {}
 

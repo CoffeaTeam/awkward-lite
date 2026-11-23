@@ -42,7 +42,7 @@ def tests(session):
     Run the unit and regular tests.
     """
     session.install("-r", "requirements-test-full.txt", "--only-binary=:all:")
-    session.install("./awkward-cpp", "-e.")
+    session.install("-e.")
     session.run("pytest", *session.posargs if session.posargs else ["tests"])
 
 
@@ -77,11 +77,11 @@ def docs(session):
     session.install(*requirements_dev)
 
     # Generate C++ documentation
-    with session.chdir("awkward-cpp/docs"):
+    with session.chdir("docs/doxygen"):
         session.run("doxygen")
 
     # Copy generated C++ docs to Sphinx
-    shutil.copytree("awkward-cpp/docs/html", "docs/_static/doxygen", dirs_exist_ok=True)
+    shutil.copytree("docs/doxygen/html", "docs/_static/doxygen", dirs_exist_ok=True)
 
     # Generate kernel documentation
     session.run("python", "dev/generate-kernel-docs.py")
@@ -111,21 +111,18 @@ def clean(session):
     clean_all = not session.posargs
 
     if args.headers or clean_all:
-        remove_if_found(
-            pathlib.Path("awkward-cpp", "header-only"),
-            pathlib.Path("src", "awkward", "_connect", "header-only"),
-        )
+        remove_if_found(pathlib.Path("src", "awkward", "_connect", "header-only"))
     if args.signatures or clean_all:
         remove_if_found(
-            pathlib.Path("awkward-cpp", "include", "awkward", "kernels.h"),
-            pathlib.Path("awkward-cpp", "src", "awkward_cpp", "_kernel_signatures.py"),
+            pathlib.Path("include", "awkward", "kernels.h"),
+            pathlib.Path("src", "awkward_cpp", "_kernel_signatures.py"),
         )
     if args.tests or clean_all:
         remove_if_found(
-            pathlib.Path("awkward-cpp", "tests-spec"),
-            pathlib.Path("awkward-cpp", "tests-spec-explicit"),
-            pathlib.Path("awkward-cpp", "tests-cpu-kernels"),
-            pathlib.Path("awkward-cpp", "tests-cpu-kernels-explicit"),
+            pathlib.Path("tests-spec"),
+            pathlib.Path("tests-spec-explicit"),
+            pathlib.Path("tests-cpu-kernels"),
+            pathlib.Path("tests-cpu-kernels-explicit"),
         )
     if args.docs or clean_all:
         remove_if_found(pathlib.Path("docs", "reference", "generated", "kernels.rst"))

@@ -71,7 +71,7 @@ def test_kernel_wrapping(out, inp, op):
 
 @pytest.fixture(scope="module")
 def reference():
-    path = Path(__file__).resolve().parents[1] / "awkward-cpp/tests-spec/kernels.py"
+    path = Path(__file__).resolve().parents[1] / "tests-spec/kernels.py"
     if not path.exists():
         pytest.skip("requires generated kernel references")
     spec = importlib.util.spec_from_file_location("overflow_reference", path)

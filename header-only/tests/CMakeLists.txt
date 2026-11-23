@@ -1,5 +1,4 @@
-# BSD 3-Clause License; see
-# https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
+# BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 macro(addtest_nolibs name filename)
   add_executable(${name} ${filename})
@@ -14,25 +13,15 @@ endmacro(addtest_nolibs)
 addtest_nolibs(test_1494-layout-builder test_1494-layout-builder.cpp)
 addtest_nolibs(test_1542-growable-buffer test_1542-growable-buffer.cpp)
 addtest_nolibs(test_1560-builder-options test_1560-builder-options.cpp)
-addtest_nolibs(test_3091-layout-builder-is-valid
-               test_3091-layout-builder-is-valid.cpp)
-addtest_nolibs(test_4087-bitmasked-growablebuffer
-               test_4087-bitmasked-growablebuffer.cpp)
-addtest_nolibs(test_4088-layoutbuilder-form-fixes
-               test_4088-layoutbuilder-form-fixes.cpp)
-addtest_nolibs(test_4259-layout-builder-long-double
-               test_4259-layout-builder-long-double.cpp)
+addtest_nolibs(test_3091-layout-builder-is-valid test_3091-layout-builder-is-valid.cpp)
+addtest_nolibs(test_4087-bitmasked-growablebuffer test_4087-bitmasked-growablebuffer.cpp)
+addtest_nolibs(test_4088-layoutbuilder-form-fixes test_4088-layoutbuilder-form-fixes.cpp)
+addtest_nolibs(test_4259-layout-builder-long-double test_4259-layout-builder-long-double.cpp)
 
 target_link_libraries(test_1494-layout-builder PRIVATE awkward::layout-builder)
-target_link_libraries(test_1542-growable-buffer
-                      PRIVATE awkward::growable-buffer)
-target_link_libraries(test_1560-builder-options
-                      PRIVATE awkward::builder-options)
-target_link_libraries(test_3091-layout-builder-is-valid
-                      PRIVATE awkward::layout-builder)
-target_link_libraries(test_4087-bitmasked-growablebuffer
-                      PRIVATE awkward::layout-builder)
-target_link_libraries(test_4088-layoutbuilder-form-fixes
-                      PRIVATE awkward::layout-builder)
-target_link_libraries(test_4259-layout-builder-long-double
-                      PRIVATE awkward::layout-builder)
+target_link_libraries(test_1542-growable-buffer PRIVATE awkward::growable-buffer)
+target_link_libraries(test_1560-builder-options PRIVATE awkward::builder-options)
+target_link_libraries(test_3091-layout-builder-is-valid PRIVATE awkward::layout-builder)
+target_link_libraries(test_4087-bitmasked-growablebuffer PRIVATE awkward::layout-builder)
+target_link_libraries(test_4088-layoutbuilder-form-fixes PRIVATE awkward::layout-builder)
+target_link_libraries(test_4259-layout-builder-long-double PRIVATE awkward::layout-builder)

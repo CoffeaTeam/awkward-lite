@@ -54,12 +54,10 @@ def type_to_ctype(typename):
 
 
 def include_kernels_h(specification):
-    print("Generating awkward-cpp/include/awkward/kernels.h...")
+    print("Generating include/awkward/kernels.h...")
 
     with write_if_changed(
-        os.path.join(
-            CURRENT_DIR, "..", "awkward-cpp", "include", "awkward", "kernels.h"
-        ),
+        os.path.join(CURRENT_DIR, "..", "include", "awkward", "kernels.h"),
     ) as header:
         header.write(
             f"""// AUTO GENERATED ON {reproducible_datetime()}
@@ -100,7 +98,7 @@ extern "C" {{
 """
         )
 
-    print("           awkward-cpp/include/awkward/kernels.h.")
+    print("           include/awkward/kernels.h.")
 
 
 type_to_dtype = {
@@ -135,13 +133,12 @@ def type_to_pytype(typename, special):
 
 
 def kernel_signatures_py(specification):
-    print("Generating awkward-cpp/src/awkward_cpp/_kernel_signatures.py...")
+    print("Generating src/awkward_cpp/_kernel_signatures.py...")
 
     with write_if_changed(
         os.path.join(
             CURRENT_DIR,
             "..",
-            "awkward-cpp",
             "src",
             "awkward_cpp",
             "_kernel_signatures.py",
@@ -236,7 +233,7 @@ def by_signature(lib):
 """
         )
 
-    print("           awkward-cpp/src/awkward_cpp/_kernel_signatures.py...")
+    print("           src/awkward_cpp/_kernel_signatures.py...")
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@
 
 #define QUOTE(x) #x
 
-#define FILENAME_FOR_EXCEPTIONS_C(filename, line) "\n\n(https://github.com/CoffeaTeam/awkward-lite/blob/main/awkward-cpp/" filename "#L" #line ")"
+#define FILENAME_FOR_EXCEPTIONS_C(filename, line) "\n\n(https://github.com/CoffeaTeam/awkward-lite/blob/main/" filename "#L" #line ")"
 #define FILENAME_FOR_EXCEPTIONS(filename, line) std::string(FILENAME_FOR_EXCEPTIONS_C(filename, line))
 
 #ifdef __GNUC__

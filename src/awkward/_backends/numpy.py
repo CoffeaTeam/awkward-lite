@@ -2,7 +2,6 @@
 
 
 import awkward_cpp
-
 from awkward._backends.backend import Backend, KernelKeyType
 from awkward._backends.dispatch import register_backend
 from awkward._kernels import NumpyKernel

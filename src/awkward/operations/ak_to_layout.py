@@ -5,11 +5,10 @@ from collections.abc import Iterable
 from datetime import date, datetime, time
 from numbers import Number
 
-from awkward_cpp.lib import _ext
-
 import awkward as ak
 from awkward._backends.numpy import NumpyBackend
 from awkward._backends.typetracer import TypeTracerBackend
+from awkward._cpp.lib import _ext
 from awkward._dispatch import high_level_function
 from awkward._nplikes.numpy import Numpy
 from awkward._nplikes.numpy_like import NumpyMetadata

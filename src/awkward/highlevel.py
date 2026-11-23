@@ -13,14 +13,13 @@ import re
 import weakref
 from collections.abc import Iterable, Mapping, Sequence, Sized
 
-from awkward_cpp.lib import _ext
-
 import awkward as ak
 import awkward._connect.hist
 from awkward._attrs import Attrs, attrs_of, without_transient_attrs
 from awkward._backends.dispatch import register_backend_lookup_factory
 from awkward._backends.numpy import NumpyBackend
 from awkward._behavior import behavior_of, get_array_class, get_record_class
+from awkward._cpp.lib import _ext
 from awkward._layout import wrap_layout
 from awkward._namedaxis import (
     NAMED_AXIS_KEY,

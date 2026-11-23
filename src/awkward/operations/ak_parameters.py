@@ -4,9 +4,8 @@
 import copy
 import numbers
 
-from awkward_cpp.lib import _ext
-
 import awkward as ak
+from awkward._cpp.lib import _ext
 from awkward._dispatch import high_level_function
 from awkward._nplikes.numpy_like import NumpyMetadata
 

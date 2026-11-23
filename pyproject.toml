@@ -64,12 +64,12 @@ init = "awkward.numba:_register"
 [tool.scikit-build]
 minimum-version = "build-system.requires"
 build-dir = "build/{wheel_tag}"
-# CMake installs the compiled libraries into awkward_cpp/lib
-wheel.packages = ["src/awkward", "src/awkward_cpp"]
+# CMake installs the compiled libraries into awkward/_cpp/lib
+wheel.packages = ["src/awkward"]
 wheel.force-include = { "juliapkg.json" = "awkward/juliapkg.json" }
 sdist.reproducible = true
 # Generated at build time and gitignored; listing them here puts them in the wheel
-sdist.include = ["src/awkward/_connect/header-only", "src/awkward_cpp/_kernel_signatures.py"]
+sdist.include = ["src/awkward/_connect/header-only", "src/awkward/_cpp/_kernel_signatures.py"]
 sdist.exclude = [
     ".github",
     "docs",

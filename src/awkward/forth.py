@@ -1,7 +1,7 @@
 # BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 
-from awkward_cpp.lib._ext import ForthMachine32, ForthMachine64
+from awkward._cpp.lib._ext import ForthMachine32, ForthMachine64
 
 __all__ = ["ForthMachine32", "ForthMachine64"]
 

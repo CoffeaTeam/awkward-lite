@@ -67,7 +67,7 @@ It is unnecessary to manually edit (rebase) commit history within a pull request
 
 The [installation for developers](README.md#installation-for-developers) procedure is described in brief on the front page, and in more detail here.
 
-Awkward Array Lite is a single package, `awkward`, built with [scikit-build-core](https://scikit-build-core.readthedocs.io/). It contains the Python package (`src/awkward`) and the compiled C++ components (`src/awkward_cpp`, the C++ sources in `src/cpu-kernels`, `src/libawkward` and `src/python`, and the headers in `include`).
+Awkward Array Lite is a single package, `awkward`, built with [scikit-build-core](https://scikit-build-core.readthedocs.io/). It contains the Python code (`src/awkward`) and the compiled C++ components (the C++ sources in `src/cpu-kernels`, `src/libawkward` and `src/python`, and the headers in `include`), which are installed into `awkward/_cpp/lib` and loaded by `src/awkward/_cpp`.
 
 Building it requires generated code and datafiles (kernel signatures, header-only includes, kernel tests). These are generated automatically by the build — CMake runs the generation scripts in `dev/` at configure time — so no separate preparation step is needed.
 

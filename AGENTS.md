@@ -4,12 +4,12 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Repository layout: one package
 
-This repo is a **single package**, `awkward`, built with scikit-build-core (`pyproject.toml` and `CMakeLists.txt` at the root). It is installed from the repository, not from PyPI. The wheel contains two importable packages:
+This repo is a **single package**, `awkward`, built with scikit-build-core (`pyproject.toml` and `CMakeLists.txt` at the root). It is installed from the repository, not from PyPI. Everything installs inside the `awkward` package:
 
 - **`awkward`** — the Python code, in `src/awkward`.
-- **`awkward_cpp`** — the compiled C++ components (pybind11), loaded by `src/awkward_cpp`. The C++ sources are in `src/cpu-kernels`, `src/libawkward` and `src/python`, the headers in `include/awkward`, and RapidJSON is a submodule in `extern/rapidjson`.
+- **`awkward._cpp`** — the compiled C++ components: CMake installs the libraries (the pybind11 module `_ext`, `libawkward` and the CPU kernels) into `awkward/_cpp/lib`, and `src/awkward/_cpp` loads them. The C++ sources are in `src/cpu-kernels`, `src/libawkward` and `src/python`, the headers in `include/awkward`, and RapidJSON is a submodule in `extern/rapidjson`.
 
-Upstream awkward keeps the C++ part in `awkward-cpp/`; here those files are at the root (`awkward-cpp/X` → `X`, except `awkward-cpp/rapidjson` → `extern/rapidjson` and `awkward-cpp/docs` → `docs/doxygen`).
+Upstream awkward ships the C++ part as a separate `awkward-cpp` package, imported as `awkward_cpp`. Here its files are at the root (`awkward-cpp/X` → `X`, except `awkward-cpp/src/awkward_cpp` → `src/awkward/_cpp`, `awkward-cpp/rapidjson` → `extern/rapidjson` and `awkward-cpp/docs` → `docs/doxygen`), and `awkward_cpp` is imported as `awkward._cpp`.
 
 Parts of the C++ build are generated; building from the repository generates them automatically (CMake runs the `dev/` generation scripts at configure time).
 
@@ -62,7 +62,7 @@ There is also `nox -s pylint`.
 - `forms/` — metadata-only mirrors of each content type (the "form" = type + buffer structure without data), used for serialization and typetracer.
 - `_meta/` — shared base logic between contents and forms.
 - `_backends/` and `_nplikes/` — abstraction over array libraries: NumPy and **typetracer** (shape-only arrays with possibly-unknown lengths, used by dask-awkward to compute without data). Code in `contents/` must go through the nplike API, not call NumPy directly.
-- `_kernels.py` + `awkward_cpp._kernel_signatures` — how layouts invoke compiled kernels via ctypes-style signatures, per backend.
+- `_kernels.py` + `_cpp/_kernel_signatures.py` — how layouts invoke compiled kernels via ctypes-style signatures, per backend.
 - `_connect/` — integrations: numba, pyarrow (Arrow/Parquet), numexpr, RDataFrame, cling/cppyy.
 - `behaviors/` — built-in behaviors (e.g. strings as character lists) layered on the `ak.behavior` registry, which maps record names/parameters to Python mixin classes.
 - `_broadcasting.py`, `_slicing.py`, `_reducers.py` — the core algorithms behind ufuncs, `__getitem__`, and reductions.
@@ -71,7 +71,7 @@ There is also `nox -s pylint`.
 
 `kernel-specification.yml` (repo root) is the source of truth for every low-level kernel: signatures plus a Python reference implementation. From it:
 
-- `dev/generate-kernel-signatures.py` → `include/awkward/kernels.h` and `src/awkward_cpp/_kernel_signatures.py`.
+- `dev/generate-kernel-signatures.py` → `include/awkward/kernels.h` and `src/awkward/_cpp/_kernel_signatures.py`.
 - `dev/generate-tests.py` + `kernel-test-data.json` → the `tests-spec*` and `tests-cpu-kernels*` suites.
 
 The hand-written C++ implementations live in `src/cpu-kernels/` (one file per kernel) and must match the spec; `nox -s diagnostics` checks kernel definitions. Adding/changing a kernel means touching the YAML spec, the C++ implementation, and (sometimes) test data, then rebuilding (which regenerates) or running `nox -s prepare`.

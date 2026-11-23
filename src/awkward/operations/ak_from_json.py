@@ -9,9 +9,9 @@ from io import BytesIO
 from urllib.parse import urlparse
 
 import fsspec
-from awkward_cpp.lib import _ext
 
 import awkward as ak
+from awkward._cpp.lib import _ext
 from awkward._dispatch import high_level_function
 from awkward._layout import HighLevelContext, wrap_layout
 from awkward._nplikes.numpy import Numpy

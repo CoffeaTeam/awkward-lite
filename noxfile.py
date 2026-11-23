@@ -115,7 +115,7 @@ def clean(session):
     if args.signatures or clean_all:
         remove_if_found(
             pathlib.Path("include", "awkward", "kernels.h"),
-            pathlib.Path("src", "awkward_cpp", "_kernel_signatures.py"),
+            pathlib.Path("src", "awkward", "_cpp", "_kernel_signatures.py"),
         )
     if args.tests or clean_all:
         remove_if_found(

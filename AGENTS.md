@@ -27,7 +27,7 @@ python -m pip install -v -e .
 ```
 
 - `nox -s prepare` runs the generation scripts without building; it accepts `--headers --signatures --tests --docs` to select targets (`--docs` data is the only target the build doesn't cover). `noxfile.py` is a uv script (`./noxfile.py -s prepare` also works without nox installed); `nox -R -s ...` reuses the session venv.
-- Changes to `src/awkward` need no rebuild (editable install). Rebuilding is needed when C++, `src/awkward_cpp` (installed as a copy) or the kernel spec changes; the CMake build directory is kept in `build/`, so rebuilds are incremental. For fast iteration install the build deps (including `pyyaml` and `numpy`) and use `pip install --no-build-isolation --check-build-dependencies -e .`.
+- Python-only changes need no rebuild (editable install). Rebuilding is only needed when C++ or the kernel spec changes; the CMake build directory is kept in `build/`, so rebuilds are incremental. For fast iteration install the build deps (including `pyyaml` and `numpy`) and use `pip install --no-build-isolation --check-build-dependencies -e .`.
 
 ## Testing
 

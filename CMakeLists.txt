@@ -186,14 +186,10 @@ if(CMAKE_SYSTEM_NAME MATCHES Emscripten)
   target_link_options(_ext PRIVATE "-Wl,-rpath=\$ORIGIN")
 endif()
 
-# The compiled libraries and the awkward_cpp package that loads them are installed together; the
-# awkward package is added to the wheel by scikit-build-core (wheel.packages).
-file(GLOB_RECURSE PYTHON_SOURCES "src/awkward_cpp/*.py")
-
+# The compiled libraries are installed into the awkward_cpp package, which loads them; the Python
+# packages are added to the wheel by scikit-build-core (wheel.packages).
 install(
   TARGETS awkward awkward-parent awkward-cpu-kernels _ext
   LIBRARY DESTINATION awkward_cpp/lib
   RUNTIME DESTINATION awkward_cpp/lib
   ARCHIVE DESTINATION awkward_cpp/lib)
-
-install(FILES ${PYTHON_SOURCES} DESTINATION awkward_cpp)

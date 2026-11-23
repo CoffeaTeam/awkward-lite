@@ -64,13 +64,12 @@ init = "awkward.numba:_register"
 [tool.scikit-build]
 minimum-version = "build-system.requires"
 build-dir = "build/{wheel_tag}"
-# awkward_cpp (the compiled libraries and the module that loads them) is installed by CMake
-wheel.packages = ["src/awkward"]
+# CMake installs the compiled libraries into awkward_cpp/lib
+wheel.packages = ["src/awkward", "src/awkward_cpp"]
 wheel.force-include = { "juliapkg.json" = "awkward/juliapkg.json" }
 sdist.reproducible = true
-# The headers copied from header-only/ at build time are gitignored; listing them
-# here puts them in the wheel, which ships them for cppyy and cling
-sdist.include = ["src/awkward/_connect/header-only"]
+# Generated at build time and gitignored; listing them here puts them in the wheel
+sdist.include = ["src/awkward/_connect/header-only", "src/awkward_cpp/_kernel_signatures.py"]
 sdist.exclude = [
     ".github",
     "docs",
@@ -344,7 +343,6 @@ cache-keys = [
     { file = "CMakeLists.txt" },
     { file = "include/**/*.h" },
     { file = "src/**/*.cpp" },
-    { file = "src/awkward_cpp/*.py" },
     { file = "header-only/**/*.h" },
     { file = "dev/*.py" },
     { file = "kernel-specification.yml" },

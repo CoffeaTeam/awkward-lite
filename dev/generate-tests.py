@@ -349,7 +349,7 @@ def awkward_ListArray_combinations_step(
 
 """
 
-    tests_spec = os.path.join(CURRENT_DIR, "..", "awkward-cpp", "tests-spec")
+    tests_spec = os.path.join(CURRENT_DIR, "..", "tests-spec")
     if os.path.exists(tests_spec):
         shutil.rmtree(tests_spec)
     os.mkdir(tests_spec)
@@ -369,7 +369,7 @@ def awkward_ListArray_combinations_step(
         )
 
     with open(
-        os.path.join(CURRENT_DIR, "..", "awkward-cpp", "tests-spec", "kernels.py"), "w"
+        os.path.join(CURRENT_DIR, "..", "tests-spec", "kernels.py"), "w"
     ) as outfile:
         outfile.write(prefix)
         with open(
@@ -397,14 +397,12 @@ def awkward_ListArray_combinations_step(
                             )
                     outfile.write("\n\n")
 
-    unit_tests = os.path.join(CURRENT_DIR, "..", "awkward-cpp", "tests-spec-explicit")
+    unit_tests = os.path.join(CURRENT_DIR, "..", "tests-spec-explicit")
     if os.path.exists(unit_tests):
         shutil.rmtree(unit_tests)
     os.mkdir(unit_tests)
-    final_dest = os.path.join(CURRENT_DIR, "..", "awkward-cpp", "tests-spec-explicit")
-    copy_dest = os.path.join(
-        CURRENT_DIR, "..", "awkward-cpp", "tests-spec", "kernels.py"
-    )
+    final_dest = os.path.join(CURRENT_DIR, "..", "tests-spec-explicit")
+    copy_dest = os.path.join(CURRENT_DIR, "..", "tests-spec", "kernels.py")
     shutil.copy(copy_dest, final_dest)
 
 
@@ -427,7 +425,6 @@ def genspectests(specdict):
             os.path.join(
                 CURRENT_DIR,
                 "..",
-                "awkward-cpp",
                 "tests-spec",
                 "test_py" + spec.name + ".py",
             ),
@@ -501,9 +498,7 @@ def remove_const(typename):
 def gencpukerneltests(specdict):
     print("Generating files for testing CPU kernels")
 
-    tests_cpu_kernels = os.path.join(
-        CURRENT_DIR, "..", "awkward-cpp", "tests-cpu-kernels"
-    )
+    tests_cpu_kernels = os.path.join(CURRENT_DIR, "..", "tests-cpu-kernels")
     if os.path.exists(tests_cpu_kernels):
         shutil.rmtree(tests_cpu_kernels)
     os.mkdir(tests_cpu_kernels)
@@ -637,7 +632,7 @@ def gencpuunittests(specdict):
 
     unit_test_map = unittestmap()
     unit_tests_cpu_kernels = os.path.join(
-        CURRENT_DIR, "..", "awkward-cpp", "tests-cpu-kernels-explicit"
+        CURRENT_DIR, "..", "tests-cpu-kernels-explicit"
     )
     if os.path.exists(unit_tests_cpu_kernels):
         shutil.rmtree(unit_tests_cpu_kernels)
@@ -860,7 +855,7 @@ def genunittests():
         num = 0
         func = "test_" + function["name"] + ".py"
         with open(
-            os.path.join(CURRENT_DIR, "..", "awkward-cpp", "tests-spec-explicit", func),
+            os.path.join(CURRENT_DIR, "..", "tests-spec-explicit", func),
             "w",
         ) as file:
             file.write("import pytest\nimport numpy\nimport kernels\n\n")
@@ -903,7 +898,7 @@ def genunittests():
 
 def evalkernels():
     with open(
-        os.path.join(CURRENT_DIR, "..", "awkward-cpp", "tests-spec", "kernels.py")
+        os.path.join(CURRENT_DIR, "..", "tests-spec", "kernels.py")
     ) as kernelfile:
         exec(kernelfile.read(), globals())
 

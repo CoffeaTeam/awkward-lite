@@ -75,15 +75,15 @@ Awkward Array Lite is installed from this repository with pip:
 pip install git+https://github.com/CoffeaTeam/awkward-lite.git
 ```
 
-This installs two packages, both built from this repository: `awkward`, which is pure Python, and `awkward-cpp`, the compiled components, which need a C++ compiler to build.
+This builds the package from source, which needs a C++ compiler.
 
-The packages are still named `awkward` and `awkward-cpp`, and the module is still imported with `import awkward as ak`, so that libraries built on them work unchanged. If an environment already has packages with those names from PyPI or conda-forge, uninstall them first, or start from a new environment.
+The package is still named `awkward`, and the module is still imported with `import awkward as ak`, so that libraries built on it work unchanged. If an environment already has `awkward` or `awkward-cpp` from PyPI or conda-forge, uninstall them first, or start from a new environment.
 
 <!-- readme-pypi-ignore-after -->
 
 # Installation for developers
 
-Clone this repository _recursively_ to get the header-only C++ dependencies. The repository is a [uv](https://docs.astral.sh/uv/) workspace, so `uv sync` (or any `uv run` command) compiles `awkward-cpp` and installs both packages as editable installations:
+Clone this repository _recursively_ to get the C++ dependencies. With [uv](https://docs.astral.sh/uv/), `uv sync` (or any `uv run` command) compiles the C++ code and installs the package as an editable installation:
 
 ```bash
 git clone --recursive https://github.com/CoffeaTeam/awkward-lite.git
@@ -92,11 +92,10 @@ cd awkward-lite
 uv sync
 ```
 
-Without uv, compile and install `awkward-cpp`, then install `awkward` as an editable installation:
+Without uv:
 
 ```bash
-python -m pip install -v ./awkward-cpp
-python -m pip install -e .
+python -m pip install -v -e .
 ```
 
 Tests can be run in parallel with [pytest](https://docs.pytest.org/) (prefix with `uv run` if you use uv):

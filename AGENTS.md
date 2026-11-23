@@ -2,42 +2,43 @@
 
 This file provides guidance to agents when working with code in this repository.
 
-## Repository layout: two packages
+## Repository layout: one package
 
-This repo holds **two packages**, both installed from the repository (neither is published on PyPI):
+This repo is a **single package**, `awkward`, built with scikit-build-core (`pyproject.toml` and `CMakeLists.txt` at the root). It is installed from the repository, not from PyPI. The wheel contains two importable packages:
 
-- **`awkward`** — pure Python, in `src/awkward`.
-- **`awkward-cpp`** — compiled C++ kernels (pybind11 + scikit-build-core), in `awkward-cpp/`. `awkward` requires it by the address of this repository in `pyproject.toml`, and uv takes it from the checkout.
+- **`awkward`** — the Python code, in `src/awkward`.
+- **`awkward_cpp`** — the compiled C++ components (pybind11), loaded by `src/awkward_cpp`. The C++ sources are in `src/cpu-kernels`, `src/libawkward` and `src/python`, the headers in `include/awkward`, and RapidJSON is a submodule in `extern/rapidjson`.
 
-Parts of `awkward-cpp` are generated; building `awkward-cpp` from the repository generates them automatically (CMake runs the `dev/` generation scripts at configure time).
+Upstream awkward keeps the C++ part in `awkward-cpp/`; here those files are at the root (`awkward-cpp/X` → `X`, except `awkward-cpp/rapidjson` → `extern/rapidjson` and `awkward-cpp/docs` → `docs/doxygen`).
+
+Parts of the C++ build are generated; building from the repository generates them automatically (CMake runs the `dev/` generation scripts at configure time).
 
 ## Development setup
 
 ```bash
 git clone --recursive https://github.com/CoffeaTeam/awkward-lite.git  # rapidjson submodule
-uv sync   # uv workspace: builds awkward-cpp (generating headers, kernel signatures, and kernel tests) and installs both packages editable
+uv sync   # builds the C++ code (generating headers, kernel signatures, and kernel tests) and installs the package editable
 ```
 
-Any `uv run ...` command does the same setup on demand and rebuilds `awkward-cpp` when its C++ sources or the kernel spec change (see `cache-keys` in `awkward-cpp/pyproject.toml`). The `dev` dependency group holds the test dependencies. Without uv:
+Any `uv run ...` command does the same setup on demand and rebuilds the C++ code when its sources or the kernel spec change (see `cache-keys` in `pyproject.toml`). The `dev` dependency group holds the test dependencies. Without uv:
 
 ```bash
-python -m pip install -v ./awkward-cpp
-python -m pip install -e .
+python -m pip install -v -e .
 ```
 
 - `nox -s prepare` runs the generation scripts without building; it accepts `--headers --signatures --tests --docs` to select targets (`--docs` data is the only target the build doesn't cover). `noxfile.py` is a uv script (`./noxfile.py -s prepare` also works without nox installed); `nox -R -s ...` reuses the session venv.
-- Python-only changes need no rebuild (editable install). Rebuilding `awkward-cpp` is only needed when C++ or the kernel spec changes; for fast iteration install build deps (including `pyyaml` and `numpy`) and use `pip install --no-build-isolation --check-build-dependencies ./awkward-cpp`.
+- Python-only changes need no rebuild (editable install). Rebuilding is only needed when C++ or the kernel spec changes; the CMake build directory is kept in `build/`, so rebuilds are incremental. For fast iteration install the build deps (including `pyyaml` and `numpy`) and use `pip install --no-build-isolation --check-build-dependencies -e .`.
 
 ## Testing
 
 ```bash
 python -m pytest -n auto tests                      # main test suite
 python -m pytest tests/test_XXXX-description.py     # single test file
-python -m pytest -n auto awkward-cpp/tests-spec         # generated kernel-spec tests (Python reference impls)
-python -m pytest -n auto awkward-cpp/tests-cpu-kernels  # generated tests against compiled kernels
+python -m pytest -n auto tests-spec         # generated kernel-spec tests (Python reference impls)
+python -m pytest -n auto tests-cpu-kernels  # generated tests against compiled kernels
 ```
 
-The generated kernel test dirs are created by building `awkward-cpp` from the repository (or by `nox -s prepare -- --tests`).
+The generated kernel test dirs are created by building the package from the repository (or by `nox -s prepare -- --tests`).
 
 Test files are named `tests/test_XXXX-description.py` where `XXXX` is the GitHub issue or PR number (enforced by `dev/validate-test-names.py`). New code needs a new test file following this convention.
 
@@ -70,25 +71,25 @@ There is also `nox -s pylint`.
 
 `kernel-specification.yml` (repo root) is the source of truth for every low-level kernel: signatures plus a Python reference implementation. From it:
 
-- `dev/generate-kernel-signatures.py` → `awkward-cpp/include/awkward/kernels.h` and `awkward_cpp/_kernel_signatures.py`.
+- `dev/generate-kernel-signatures.py` → `include/awkward/kernels.h` and `src/awkward_cpp/_kernel_signatures.py`.
 - `dev/generate-tests.py` + `kernel-test-data.json` → the `tests-spec*` and `tests-cpu-kernels*` suites.
 
-The hand-written C++ implementations live in `awkward-cpp/src/cpu-kernels/` (one file per kernel) and must match the spec; `nox -s diagnostics` checks kernel definitions. Adding/changing a kernel means touching the YAML spec, the C++ implementation, and (sometimes) test data, then rebuilding `awkward-cpp` (which regenerates) or running `nox -s prepare`.
+The hand-written C++ implementations live in `src/cpu-kernels/` (one file per kernel) and must match the spec; `nox -s diagnostics` checks kernel definitions. Adding/changing a kernel means touching the YAML spec, the C++ implementation, and (sometimes) test data, then rebuilding (which regenerates) or running `nox -s prepare`.
 
 **`kernel-specification.yml` is the single source of truth for all backends** — the canonical signature, semantics, edge-case behavior, and Python reference. The CPU C++ kernels must conform to it: Awkward guarantees cross-backend consistency (NumPy, typetracer, compiled kernels), so any divergence breaks slicing, broadcasting, masking, union, and Dask typetracer guarantees. Do **not** reorder arguments, change pointer/buffer types, alter edge cases, add kernels directly in C++, or bypass the generation pipeline.
 
-To change a kernel: (1) edit `kernel-specification.yml`; (2) run the generation pipeline (rebuild `awkward-cpp`, or `nox -s prepare -- --signatures --tests`); (3) update the CPU C++ implementation to match the reference; (4) confirm `tests-spec` and `tests-cpu-kernels` pass.
+To change a kernel: (1) edit `kernel-specification.yml`; (2) run the generation pipeline (rebuild, or `nox -s prepare -- --signatures --tests`); (3) update the CPU C++ implementation to match the reference; (4) confirm `tests-spec` and `tests-cpu-kernels` pass.
 
 ### header-only C++
 
-`header-only/` contains standalone C++ headers (`LayoutBuilder`, `GrowableBuffer`) used by downstream C++ projects; `dev/copy-cpp-headers.py` (part of `prepare`) copies them into `awkward-cpp` and `src/awkward/_connect/header-only`. Never edit the copies.
+`header-only/` contains standalone C++ headers (`LayoutBuilder`, `GrowableBuffer`) used by downstream C++ projects; `dev/copy-cpp-headers.py` (part of `prepare`) copies them into `src/awkward/_connect/header-only`, which the package ships for cppyy and cling; the C++ build uses `header-only/` directly. Never edit the copies.
 
 ## Conventions and gotchas
 
 - PR titles follow Conventional Commits (`feat:`, `fix:`, `docs:`, ...) — PRs are squash-merged, so the title becomes the commit message. Branches are named `<github-userid>/description`.
 - `main` must always be in a working state. Do not commit directly to `main` (PRs only).
 - Changes to core dependencies (NumPy, Numba, Pandas, PyArrow) or Python version support must be discussed with maintainers first.
-- If a PR requires C++ changes, rebuild `awkward-cpp` from the checkout to test it. There are no `awkward-cpp` releases.
+- If a PR requires C++ changes, rebuild the package from the checkout to test it. CI builds wheels for all platforms with cibuildwheel when the C++ code or the build changes.
 - AI-assisted contributions must be disclosed in the PR description (see CONTRIBUTING.md).
 
 ## Docs

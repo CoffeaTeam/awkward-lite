@@ -7,12 +7,14 @@ docs/demos/test-program.cpp
 # Generated files
 src/awkward/_connect/header-only
 src/awkward/_version.py
+include/awkward/kernels.h
+src/awkward_cpp/_kernel_signatures.py
 
 # Kernel tests
-awkward-cpp/tests-cpu-kernels
-awkward-cpp/tests-cpu-kernels-explicit
-awkward-cpp/tests-spec
-awkward-cpp/tests-spec-explicit
+/tests-cpu-kernels
+/tests-cpu-kernels-explicit
+/tests-spec
+/tests-spec-explicit
 
 array*.parquet
 
@@ -29,6 +31,7 @@ docs/environment.yml
 **/.pyodide-xbuildenv
 
 docs/_static/doxygen
+docs/doxygen/html
 
 ############################################################# IDEs
 .idea

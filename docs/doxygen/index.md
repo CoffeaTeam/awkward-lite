@@ -8,7 +8,7 @@ This sub-site documents the C++ classes in the `awkward-cpp` library, which `awk
 
 The main parts of the C++ codebase are:
 
-   * `awkward-cpp/src/cpu-kernels`: processes that iterate over all elements in an array buffer. Any Awkward Array algorithms that can't be expressed in terms of NumPy array manipulations are implemented as Awkward kernels. Individual kernels are [specified in YAML](https://github.com/CoffeaTeam/awkward-lite/blob/main/kernel-specification.yml) and [documented here](../../reference/generated/kernels.html).
-   * `awkward-cpp/src/libawkward`: other algorithms that must be implemented in C++. Currently, these are the [ArrayBuilder](../../reference/generated/ak.ArrayBuilder.html) and [AwkwardForth language](../../reference/awkwardforth.html).
-   * `awkward-cpp/src/python`: pybind11 bindings for `libawkward` classes and functions.
+   * `src/cpu-kernels`: processes that iterate over all elements in an array buffer. Any Awkward Array algorithms that can't be expressed in terms of NumPy array manipulations are implemented as Awkward kernels. Individual kernels are [specified in YAML](https://github.com/CoffeaTeam/awkward-lite/blob/main/kernel-specification.yml) and [documented here](../../reference/generated/kernels.html).
+   * `src/libawkward`: other algorithms that must be implemented in C++. Currently, these are the [ArrayBuilder](../../reference/generated/ak.ArrayBuilder.html) and [AwkwardForth language](../../reference/awkwardforth.html).
+   * `src/python`: pybind11 bindings for `libawkward` classes and functions.
    * `header-only/awkward`: header-only files intended for inclusion in other C++ projects that create Awkward Arrays. See the [code in GitHub](https://github.com/CoffeaTeam/awkward-lite/tree/main/header-only/awkward).

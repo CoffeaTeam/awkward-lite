@@ -38,14 +38,12 @@ jobs:
           filter: |
             .github/workflows/ci.yml
             .github/workflows/reusable-test.yml
-            awkward-cpp/include/**
-            awkward-cpp/rapidjson/**
-            awkward-cpp/src/**
-            awkward-cpp/CMakeLists.txt
-            awkward-cpp/pyproject.toml
+            CMakeLists.txt
             dev/**
+            extern/**
             header-only/**
-            src/awkward/**
+            include/**
+            src/**
             tests/**
             .gitmodules
             kernel-specification.yml
@@ -60,19 +58,29 @@ jobs:
         id: code-changes
         run: echo "run-tests=true" >> "${GITHUB_OUTPUT}"
 
-      - name: Changed C++ files
+      - name: Changed files that affect the wheels
         id: changed-cpp-files
         uses: Ana06/get-changed-files@25f79e676e7ea1868813e21465014798211fad8c # v2.3.0
         with:
           format: "json"
           filter: |
             .github/workflows/ci.yml
-            .github/workflows/reusable-packaging-test.yml
-            awkward-cpp/include/**
-            awkward-cpp/rapidjson/**
-            awkward-cpp/src/**
-            awkward-cpp/CMakeLists.txt
-            awkward-cpp/pyproject.toml
+            .github/workflows/reusable-build-wheels.yml
+            CMakeLists.txt
+            dev/copy-cpp-headers.py
+            dev/generate-kernel-signatures.py
+            dev/generate-tests.py
+            extern/**
+            header-only/**
+            include/**
+            src/awkward_cpp/**
+            src/cpu-kernels/**
+            src/libawkward/**
+            src/python/**
+            .gitmodules
+            kernel-specification.yml
+            kernel-test-data.json
+            pyproject.toml
       - name: Set a flag for building wheels
         if: >-
           github.event_name != 'pull_request' ||

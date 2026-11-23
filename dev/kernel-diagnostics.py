@@ -127,7 +127,6 @@ def check_cpu_implementation(kerneldict):
             os.path.join(
                 CURRENT_DIR,
                 "..",
-                "awkward-cpp",
                 "src",
                 "cpu-kernels",
                 kernelname + ".cpp",
@@ -137,7 +136,6 @@ def check_cpu_implementation(kerneldict):
                 os.path.join(
                     CURRENT_DIR,
                     "..",
-                    "awkward-cpp",
                     "src",
                     "cpu-kernels",
                     kernelname + ".cpp",

@@ -68,7 +68,8 @@ build-dir = "build/{wheel_tag}"
 wheel.packages = ["src/awkward"]
 wheel.force-include = { "juliapkg.json" = "awkward/juliapkg.json" }
 sdist.reproducible = true
-# Copied from header-only/ at build time and shipped for cppyy and cling (gitignored)
+# The headers copied from header-only/ at build time are gitignored; listing them
+# here puts them in the wheel, which ships them for cppyy and cling
 sdist.include = ["src/awkward/_connect/header-only"]
 sdist.exclude = [
     ".github",
@@ -342,9 +343,7 @@ cache-keys = [
     { file = "pyproject.toml" },
     { file = "CMakeLists.txt" },
     { file = "include/**/*.h" },
-    { file = "src/cpu-kernels/*.cpp" },
-    { file = "src/libawkward/**/*.cpp" },
-    { file = "src/python/*.cpp" },
+    { file = "src/**/*.cpp" },
     { file = "src/awkward_cpp/*.py" },
     { file = "header-only/**/*.h" },
     { file = "dev/*.py" },

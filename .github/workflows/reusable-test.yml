@@ -19,6 +19,7 @@ env:
   # The C++ code is compiled through ccache, which is cached between runs.
   # Only runs on main save the cache; pull requests restore it.
   CMAKE_CXX_COMPILER_LAUNCHER: ccache
+  CMAKE_GENERATOR: Ninja
   # A constant timestamp keeps the generated kernels.h, which every kernel
   # includes, identical between runs
   SOURCE_DATE_EPOCH: "1668811211"
@@ -107,11 +108,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@a102174a2b586eec2ea151a69e6fd14404a8ce7c # v1.13.0
         with:
           arch: ${{ matrix.python-architecture == 'x86' && 'x86' || 'x64' }}
-
-      - name: Use Ninja on Windows
-        if: runner.os == 'Windows'
-        run: echo "CMAKE_GENERATOR=Ninja" >> "${GITHUB_ENV}"
-        shell: bash
 
       - name: Install awkward and dependencies
         run: >-

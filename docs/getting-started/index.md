@@ -8,7 +8,7 @@ Awkward Array Lite is installed from its repository with pip:
 pip install git+https://github.com/CoffeaTeam/awkward-lite.git
 ```
 
-It installs under the name `awkward` and needs a C++ compiler to build. If an environment already has `awkward` or `awkward-cpp` from PyPI or conda-forge, uninstall them first, or start from a new environment.
+It installs under the name `awkward` and needs a C++ compiler to build. If an environment already has `awkward` or `awkward-cpp` from PyPI or conda-forge, or `awkward-cpp` from an earlier version of this repository, uninstall them first, or start from a new environment.
 
 If you're installing as a developer, see the [developer installation instructions](https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md#building-and-testing-locally) in the [Contributor guide](https://github.com/CoffeaTeam/awkward-lite/blob/main/CONTRIBUTING.md).
 

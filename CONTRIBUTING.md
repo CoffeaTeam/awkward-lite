@@ -77,7 +77,7 @@ If you use [uv](https://docs.astral.sh/uv/), one command sets up everything: it 
 uv sync
 ```
 
-Any `uv run` command (for example `uv run pytest tests`) performs the same setup on demand, and the C++ code is rebuilt when its sources or the kernel specification change. Changes to the Python code need no rebuild. The sections below describe the manual, `pip`-based procedure.
+Any `uv run` command (for example `uv run pytest tests`) performs the same setup on demand, and the C++ code is rebuilt when its sources or the kernel specification change. Changes to `src/awkward` need no rebuild; `src/awkward_cpp` is installed as a copy, so changes to it do. The sections below describe the manual, `pip`-based procedure.
 
 <details>
 

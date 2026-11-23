@@ -77,7 +77,7 @@ pip install git+https://github.com/CoffeaTeam/awkward-lite.git
 
 This builds the package from source, which needs a C++ compiler.
 
-The package is still named `awkward`, and the module is still imported with `import awkward as ak`, so that libraries built on it work unchanged. If an environment already has `awkward` or `awkward-cpp` from PyPI or conda-forge, uninstall them first, or start from a new environment.
+The package is still named `awkward`, and the module is still imported with `import awkward as ak`, so that libraries built on it work unchanged. If an environment already has `awkward` or `awkward-cpp` from PyPI or conda-forge, or `awkward-cpp` from an earlier version of this repository, uninstall them first, or start from a new environment.
 
 <!-- readme-pypi-ignore-after -->
 

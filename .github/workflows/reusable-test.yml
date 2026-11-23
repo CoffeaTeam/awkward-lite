@@ -19,6 +19,9 @@ env:
   # The C++ code is compiled through ccache, which is cached between runs.
   # Only runs on main save the cache; pull requests restore it.
   CMAKE_CXX_COMPILER_LAUNCHER: ccache
+  # A constant timestamp keeps the generated kernels.h, which every kernel
+  # includes, identical between runs
+  SOURCE_DATE_EPOCH: "1668811211"
 
 jobs:
   run-tests:

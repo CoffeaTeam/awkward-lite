@@ -133,14 +133,15 @@ def type_to_pytype(typename, special):
 
 
 def kernel_signatures_py(specification):
-    print("Generating src/awkward_cpp/_kernel_signatures.py...")
+    print("Generating src/awkward/_cpp/_kernel_signatures.py...")
 
     with write_if_changed(
         os.path.join(
             CURRENT_DIR,
             "..",
             "src",
-            "awkward_cpp",
+            "awkward",
+            "_cpp",
             "_kernel_signatures.py",
         ),
     ) as file:
@@ -233,7 +234,7 @@ def by_signature(lib):
 """
         )
 
-    print("           src/awkward_cpp/_kernel_signatures.py...")
+    print("           src/awkward/_cpp/_kernel_signatures.py...")
 
 
 if __name__ == "__main__":

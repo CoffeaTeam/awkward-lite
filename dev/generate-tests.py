@@ -539,7 +539,7 @@ def gencpukerneltests(specdict):
                 "import ctypes\n"
                 "import numpy as np\n"
                 "import pytest\n\n"
-                "from awkward_cpp.cpu_kernels import lib\n\n"
+                "from awkward._cpp.cpu_kernels import lib\n\n"
             )
             num = 1
             if spec.tests == []:
@@ -675,7 +675,7 @@ def gencpuunittests(specdict):
                     "import ctypes\n"
                     "import numpy as np\n"
                     "import pytest\n\n"
-                    "from awkward_cpp.cpu_kernels import lib\n\n"
+                    "from awkward._cpp.cpu_kernels import lib\n\n"
                 )
                 unit_test_values = unit_test_map[spec.templatized_kernel_name]
                 tests = unit_test_values["tests"]

@@ -73,7 +73,7 @@ jobs:
             extern/**
             header-only/**
             include/**
-            src/awkward_cpp/**
+            src/awkward/_cpp/**
             src/cpu-kernels/**
             src/libawkward/**
             src/python/**

@@ -7,10 +7,10 @@ from os import PathLike, fsdecode
 from urllib.parse import urlparse
 
 import fsspec
-from awkward_cpp.lib import _ext
 
 import awkward as ak
 from awkward._behavior import behavior_of
+from awkward._cpp.lib import _ext
 from awkward._dispatch import high_level_function
 from awkward._nplikes.numpy import Numpy
 from awkward._nplikes.numpy_like import NumpyMetadata

@@ -9,7 +9,7 @@ from numba.core.errors import NumbaTypeError
 from numba.cpython.unicode import _get_code_point
 
 import awkward as ak
-from awkward_cpp import libawkward
+from awkward._cpp import libawkward
 
 dynamic_addrs = {}
 

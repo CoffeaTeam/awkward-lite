@@ -1,7 +1,7 @@
 # BSD 3-Clause License; see https://github.com/CoffeaTeam/awkward-lite/blob/main/LICENSE
 
 
-import awkward_cpp
+import awkward._cpp
 from awkward._backends.backend import Backend, KernelKeyType
 from awkward._backends.dispatch import register_backend
 from awkward._kernels import NumpyKernel
@@ -28,4 +28,4 @@ class NumpyBackend(Backend):
         self._numpy = Numpy.instance()
 
     def _new_kernel(self, index: KernelKeyType) -> NumpyKernel:
-        return NumpyKernel(awkward_cpp.cpu_kernels.kernel[index], index)
+        return NumpyKernel(awkward._cpp.cpu_kernels.kernel[index], index)

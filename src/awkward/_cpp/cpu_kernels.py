@@ -5,7 +5,7 @@ import ctypes
 import importlib.resources as importlib_resources
 import platform
 
-import awkward_cpp._kernel_signatures
+from awkward._cpp import _kernel_signatures
 
 if platform.system() == "Windows":
     name = "awkward-cpu-kernels.dll"
@@ -14,8 +14,8 @@ elif platform.system() == "Darwin":
 else:
     name = "libawkward-cpu-kernels.so"
 
-libpath_ref = importlib_resources.files(awkward_cpp) / "lib" / name
+libpath_ref = importlib_resources.files(__package__) / "lib" / name
 with importlib_resources.as_file(libpath_ref) as libpath:
     lib = ctypes.cdll.LoadLibrary(str(libpath))
 
-kernel = awkward_cpp._kernel_signatures.by_signature(lib)
+kernel = _kernel_signatures.by_signature(lib)

@@ -8,7 +8,7 @@ docs/demos/test-program.cpp
 src/awkward/_connect/header-only
 src/awkward/_version.py
 include/awkward/kernels.h
-src/awkward_cpp/_kernel_signatures.py
+src/awkward/_cpp/_kernel_signatures.py
 
 # Kernel tests
 /tests-cpu-kernels

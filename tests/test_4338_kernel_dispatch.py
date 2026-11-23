@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 import awkward as ak
-import awkward_cpp
+import awkward._cpp
 from awkward._backends.numpy import NumpyBackend
 from awkward._backends.typetracer import TypeTracerBackend
 from awkward._kernels import CTypesKernel, NumpyKernel
@@ -41,13 +41,13 @@ def test_failed_lookup_is_not_cached():
 
 
 def test_ctypes_kernel_pointer_of_is_abstract():
-    kernel = CTypesKernel(awkward_cpp.cpu_kernels.kernel[KEY], KEY)
+    kernel = CTypesKernel(awkward._cpp.cpu_kernels.kernel[KEY], KEY)
     with pytest.raises(NotImplementedError):
         kernel._pointer_of(np.arange(3))
 
 
 def test_numpy_pointer_of():
-    kernel = NumpyKernel(awkward_cpp.cpu_kernels.kernel[KEY], KEY)
+    kernel = NumpyKernel(awkward._cpp.cpu_kernels.kernel[KEY], KEY)
 
     array = np.arange(3, dtype=np.int64)
     assert kernel._pointer_of(array) == array.ctypes.data
